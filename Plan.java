@@ -1,9 +1,10 @@
 
 /**
- * Write a description of class Plan here.
+ * This is a collection of Schedule objects that combine to create a possible semester plan. It will eventually be
+ * passed to the OutputGraphics class to be used to generate the final out put to the user.
  * 
- * @author (your name) 
- * @version (a version number or a date)
+ * @author Qi Liang
+ * @version 
  */
 public class Plan
 {
