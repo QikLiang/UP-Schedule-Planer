@@ -4,7 +4,7 @@ import java.util.Scanner;//for file and keyboard input
 import java.io.*;//for writing into file
 
 /**
- * Main class. The main method and all big methods called my main
+ * Main class. The main method and all big methods called by main
  * 
  * @author Qi Liang
  * @version 2016.3.5
@@ -14,13 +14,17 @@ public class Schedule_Planer
     //universal variables
     static final int SECTIONS = 25; //maximum number of sections per course
     static final int COURSES = 9; //maximum number of courses in database
-    static final int PLANS = 100;//maximum number of different schedules the program can handdle
+    static final int PLANS = 100;//maximum number of different schedules the program can handle
     Scanner keyboard = new Scanner(System.in);
 
     public static boolean testing = true;
     final String DATABASE = testing ? "C:\\Users\\Qi\\Desktop\\database.txt" : "database.txt";//address of the databse file
 
+    /*
+     * framework code. calls other methods for asking input, performing calculations, and output results
+     */
     public static void main (String[] args) {
+    	//declearation and instantiation
         Course[] database = new Course[COURSES];
         Plan[] plan = new Plan[PLANS];
         int courses = 0;
@@ -34,21 +38,27 @@ public class Schedule_Planer
 
         System.out.println(  "Schedule planer ver 2.0 for University of Portland, by Qi Liang");
 
+        //prompt user for input and load data into database and preference object
         courses = planer.loadDatabase(database, preference);
         System.out.println(  "finish loading database\n\n\n");
 
+        //prompt the user to select professors they want and load into preference
         planer.loadInstructors(database, preference, courses);
 
+        //enumerate all possible schedules based on database
         plans = planer.createPlans(database, plan, courses, preference);
 
+        //show the plans generated to the user
         OutputGraphics graphics = new OutputGraphics(database, plan, plans, preference);
         graphics.startGraphics();
-
-        for(int j=0; j<plans; j++){
-            //showSchedule(database, plan[j], courses);
-        }
     }
 
+    /*
+     * prompts user to input data, and store it in database
+     * @param database the database to store into into
+     * @param preference the object for storing user preference
+     * @return the number of courses in the database
+     */
     int loadDatabase(Course database[], Preference preference){
         File file = new File(DATABASE);
         Scanner input = null;
@@ -66,6 +76,7 @@ public class Schedule_Planer
         Time endTime = new Time();
         int courses=0; //amount of courses in the database
 
+        //try to open text file for user to enter data
         newFile=true;
         if (file.exists()){
             System.out.print("Database seems to already exist, do you want to use it?\n1. Yes  2. No\n");
@@ -83,6 +94,7 @@ public class Schedule_Planer
                 System.exit(1);
             }
 
+            //configure the file before showing it to user
             write.println( "Please rate how important is each factor below\n");
             write.println( "have my day start after certian time: \n");
             write.println( "\tthat time being HR:MN AM \n(replace the cap letters with what you want, AM/PM is cap sensitive)\n");
@@ -164,7 +176,6 @@ public class Schedule_Planer
         while (!temp.equals("paste below:")){
             temp = input.nextLine();
         }
-        //Temp = temp[1000];
 
         //input couses
         while (input.hasNextLine() && courses < COURSES){ //keep inputing until maxed out or finished
@@ -342,7 +353,7 @@ public class Schedule_Planer
         input.useDelimiter("\\s");
         String[] string = input.next().split(":");
         time.hour = Math.abs(Integer.parseInt(string[0]));
-        //when a dash is infront of a number, it can be interpreted as a negative sign, so take the absolute value
+        //when a dash is in front of a number, it can be interpreted as a negative sign, so take the absolute value
         time.minute = Integer.parseInt(string[1]);
         input.useDelimiter(delimiter);
     }
@@ -402,7 +413,6 @@ public class Schedule_Planer
             }//*/
 
             thisPlan.evaluateScore(database, preference);
-            //cout << thisPlan.score << endl;
             //getchar();
             if (thisPlan.score != 0){
                 plan[plans] = thisPlan;
