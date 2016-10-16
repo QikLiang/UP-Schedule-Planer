@@ -1,449 +1,461 @@
+import java.awt.CardLayout;
+import java.awt.Desktop;
 import java.util.NoSuchElementException;
-import java.awt.Desktop;//for opening file
-import java.util.Scanner;//for file and keyboard input
-import java.io.*;//for writing into file
+import java.util.Scanner;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+
+import java.io.*;
 
 /**
  * Main class. The main method and all big methods called by main
- * 
+ *
  * @author Qi Liang
  * @version 2016.3.5
  */
-public class Schedule_Planer
-{
-    //universal variables
-    static final int SECTIONS = 25; //maximum number of sections per course
-    static final int COURSES = 9; //maximum number of courses in database
-    static final int PLANS = 100;//maximum number of different schedules the program can handle
-    Scanner keyboard = new Scanner(System.in);
+public class Schedule_Planer {
+	//universal variables
+	static final int SECTIONS = 25; //maximum number of sections per course
+	static final int COURSES = 9; //maximum number of courses in database
+	static final int PLANS = 100;//maximum number of different schedules the
+	//program can handle
+	Scanner keyboard = new Scanner(System.in);
 
-    public static boolean testing = true;
-    final String DATABASE = testing ? "C:\\Users\\Qi\\Desktop\\database.txt" : "database.txt";//address of the databse file
+	public static boolean testing = true;
+	//address of the database file
+	final String DATABASE = testing ? "database.txt" : "database.txt";
 
-    /*
-     * framework code. calls other methods for asking input, performing calculations, and output results
-     */
-    public static void main (String[] args) {
-    	//declearation and instantiation
-        Course[] database = new Course[COURSES];
-        Plan[] plan = new Plan[PLANS];
-        int courses = 0;
-        int plans = 0;
-        Preference preference = new Preference();
-        Schedule_Planer planer = new Schedule_Planer();
+	//instance variables
+	Course[] database;
+	Plan[] plan;
+	int courses;
+	int plans;
+	Preference preference;
 
-        for (int i = 0; i<COURSES; i++) {
-            database[i] = new Course();
-        }
+	//gui variables
+	JFrame window;
+	JPanel contentpane;
 
-        System.out.println(  "Schedule planer ver 2.0 for University of Portland, by Qi Liang");
+	/*
+	 * framework code. calls other methods for asking input, performing
+	 * calculations, and output results
+	 */
+	public static void main(String[] args) {
+		Schedule_Planer planer = new Schedule_Planer();
 
-        //prompt user for input and load data into database and preference object
-        courses = planer.loadDatabase(database, preference);
-        System.out.println(  "finish loading database\n\n\n");
+		/*
+		// prompt the user to select professors they want and load into preference
+		planer.loadInstructors();
 
-        //prompt the user to select professors they want and load into preference
-        planer.loadInstructors(database, preference, courses);
+		// enumerate all possible schedules based on database
+		plans = planer.createPlans(database, plan, courses, preference);
 
-        //enumerate all possible schedules based on database
-        plans = planer.createPlans(database, plan, courses, preference);
+		// show the plans generated to the user
+		OutputGraphics graphics = new OutputGraphics(database, plan, plans, preference);
+		graphics.startGraphics();
+		 */
+	}
 
-        //show the plans generated to the user
-        OutputGraphics graphics = new OutputGraphics(database, plan, plans, preference);
-        graphics.startGraphics();
-    }
+	private Schedule_Planer(){
+		// declaration and instantiation
+		database = new Course[COURSES];
+		plan = new Plan[PLANS];
+		courses = 0;
+		plans = 0;
+		preference = new Preference();
 
-    /*
-     * prompts user to input data, and store it in database
-     * @param database the database to store into into
-     * @param preference the object for storing user preference
-     * @return the number of courses in the database
-     */
-    int loadDatabase(Course database[], Preference preference){
-        File file = new File(DATABASE);
-        Scanner input = null;
-        PrintWriter write = null;
-        String temp;
-        int tempInt = 0;
-        float credit;
-        boolean newFile;
-        char Temp;//dummy variables
-        boolean newCourse=true;
-        Course thisCourse = new Course();
-        int courseIndex = 0;
-        String classdays;
-        Time startTime = new Time();
-        Time endTime = new Time();
-        int courses=0; //amount of courses in the database
+		for (int i = 0; i < COURSES; i++) {
+			database[i] = new Course();
+		}
 
-        //try to open text file for user to enter data
-        newFile=true;
-        if (file.exists()){
-            System.out.print("Database seems to already exist, do you want to use it?\n1. Yes  2. No\n");
-            tempInt = keyboard.nextInt();
-            keyboard.nextLine();
-            if (tempInt==1){
-                newFile = false;
-            }
-        }
-        if (newFile){
-            try{
-                write = new PrintWriter(file);
-            } catch (FileNotFoundException e) {
-                System.out.println("Error: cannot open file to write.");
-                System.exit(1);
-            }
+		System.out.println("Schedule planer ver 2.0 for University of Portland, by Qi Liang");
 
-            //configure the file before showing it to user
-            write.println( "Please rate how important is each factor below\n");
-            write.println( "have my day start after certian time: \n");
-            write.println( "\tthat time being HR:MN AM \n(replace the cap letters with what you want, AM/PM is cap sensitive)\n");
-            write.println( "have my day end before certain time: \n");
-            write.println( "\tthat time being HR:MN PM\n");
-            write.println( "have a break around noon: \n");
-            write.println( "\tthe break must be between HR:MN PM and HR:MN PM for a duration of : MIN minutes\n");
-            write.println( "havng certain professors (list will be available for selection after the database is loaded): \n\n");
-            write.println("having classes clustered on certain days (easy days and hard days): ");
-            write.println();
-            write.println( "copy information about the courses you want to take from selfserve (the whole row for each section) ");
-            write.println( "and paste it below. Press enter after each course to make sure the next section is    on a new line.");
-            write.println( "Save the document and close it. Example:\n");
-            write.println( "SR   40299   EXP 203 A   1   3.000   Introduction to Computer Science    MWF 11:25 am-12:20 pm   30  2   28  0   0   0   0   0   0   James Michael Schmidt (P)   01/11-04/28 SHILEY 301\n\n");
-            write.println( "paste below:\n");
-            write.close();
-            if(!Desktop.isDesktopSupported()){
-                System.out.println("Error: Please open and edit '" + DATABASE + "' manually.");
-            }
-            Desktop desktop = Desktop.getDesktop(); 
-            try{
-                desktop.open(file);
-            }catch (IOException e){
-                System.out.println("Error: Please open and edit '" + DATABASE + "' manually.");
-            }
+		// prompt user for input and load data into database and preference object
+		courses = loadDatabase();
+		System.out.println("finish loading database\n\n\n");
 
-            System.out.println("After the text file has been saved and exited, press enter.");
-            keyboard.nextLine();
-        }
+		// prompt user to select preference
+		window = new JFrame("UP Schedule Planer");
+		window.setResizable(false);
+		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		window.setSize(430, 450);
+		contentpane = new JPanel();
+		contentpane.setLayout(new CardLayout());
+		PreferenceGraphics pg = new PreferenceGraphics(this);
+		contentpane.add(pg, "Preference");
+		window.add(contentpane);
+		window.setVisible(true);
+	}
 
-        try{
-            input = new Scanner(file);
-        } catch (FileNotFoundException e) {
-            System.out.println("Error: cannot open file to read.");
-            System.exit(1);
-        }
+	/**
+	 * prompts user to input data, and store it in database
+	 *
+	 * @param database the database to store into into
+	 *
+	 * @param preference the object for storing user preference
+	 *
+	 * @return the number of courses in the database
+	 */
+	int loadDatabase() {
+		File file = new File(DATABASE);
+		Scanner input = null;
+		PrintWriter write = null;
+		String temp;
+		int tempInt = 0;
+		float credit;
+		boolean newFile;
+		boolean newCourse = true;
+		Course thisCourse = new Course();
+		int courseIndex = 0;
+		String classdays;
+		Time startTime = new Time();
+		Time endTime = new Time();
+		int courses = 0; // amount of courses in the database
 
-        //read preferences
-        skipTilNum(input);
-        preference.start = input.nextInt();
-        skipTilNum(input);
-        /*preference.startTime.hour= input.nextInt();
-        skipTilNum(input);
-        preference.startTime.minute= input.nextInt();
-         */
-        inputTime(input, preference.startTime);
-        temp= input.next();
-        if (temp.equals("PM")){
-            preference.startTime.hour = preference.startTime.hour % 12 + 12;
-        }
-        skipTilNum(input);
-        preference.end = input.nextInt();
-        skipTilNum(input);
-        inputTime(input, preference.endTime);
-        temp= input.next();
-        if (temp.equals("PM")){
-            preference.endTime.hour = preference.endTime.hour % 12 + 12;
-        }
-        skipTilNum(input);
-        preference.noon = input.nextInt();
-        skipTilNum(input);
-        inputTime(input, preference.noonBegin);
-        temp = input.next();
-        if (temp.equals("PM")){
-            preference.noonBegin.hour = preference.noonBegin.hour % 12 + 12;
-        }
-        skipTilNum(input);
-        inputTime(input, preference.noonEnd);
-        temp = input.next();
-        if (temp.equals("PM")){
-            preference.noonEnd.hour = preference.noonEnd.hour % 12 + 12;
-        }
-        skipTilNum(input);
-        preference.duration = input.nextInt();
-        skipTilNum(input);
-        preference.instructor = input.nextInt();
-        skipTilNum(input);
-        preference.clustering = input.nextInt();
-        while (!temp.equals("paste below:")){
-            temp = input.nextLine();
-        }
+		// try to open text file for user to enter data
+		newFile = true;
+		if (file.exists()) {
+			System.out.print("Database seems to already exist, do you want to use it?\n1. Yes  2. No\n");
+			if(testing){
+				tempInt=1;
+			}else{
+				tempInt = keyboard.nextInt();
+				keyboard.nextLine();
+			}
+			if (tempInt == 1) {
+				newFile = false;
+			}
+		}
+		if (newFile) {
+			try {
+				write = new PrintWriter(file);
+			} catch (FileNotFoundException e) {
+				System.out.println("Error: cannot open file to write.");
+				System.exit(1);
+			}
 
-        //input couses
-        while (input.hasNextLine() && courses < COURSES){ //keep inputing until maxed out or finished
-            //clear the temp objects
-            thisCourse = new Course();
-            startTime = new Time();
-            endTime = new Time();
+			// configure the file before showing it to user
+			write.println(
+					"copy information about the courses you want to take from selfserve (the whole row for each section) ");
+			write.println(
+					"and paste it below. Press enter after each course to make sure the next section is    on a new line.");
+			write.println("Save the document and close it. Example:\n");
+			write.println(
+					"SR   40299   EXP 203 A   1   3.000   Introduction to Computer Science    MWF 11:25 am-12:20 pm   30  2   28  0   0   0   0   0   0   James Michael Schmidt (P)   01/11-04/28 SHILEY 301\n\n");
+			write.println("paste below:\n");
+			write.close();
+			if (!Desktop.isDesktopSupported()) {
+				System.out.println("Error: Please open and edit '" + DATABASE + "' manually.");
+			}
+			Desktop desktop = Desktop.getDesktop();
+			try {
+				desktop.open(file);
+			} catch (IOException e) {
+				System.out.println("Error: Please open and edit '" + DATABASE + "' manually.");
+			}
 
-            input.useDelimiter("\\t");
-            temp = input.next();//check is there the SR
-            if (temp != " "){ //if the first thing is SR, it means it's a new section
-                //cout << temp;
-                thisCourse.section[0].crn = input.nextInt(); 
-                thisCourse.subject = input.next();
-                thisCourse.courseNumber = input.next(); 
-                thisCourse.section[0].sectionNumber = input.next();//input course info
-                temp = input.next(); 
-                credit = input.nextFloat();
-                thisCourse.title = input.next();
-                classdays = input.next();
+			System.out.println("After the text file has been saved and exited, press enter.");
+			keyboard.nextLine();
+		}
 
-                //ignore classes with undetermined time
-                if (classdays.equals("TBA")){
-                    input.nextLine();
-                    classdays = "";
-                    continue;
+		try {
+			input = new Scanner(file);
+		} catch (FileNotFoundException e) {
+			System.out.println("Error: cannot open file to read.");
+			System.exit(1);
+		}
 
-                }
+		// remove instructions before parsing
+		do {
+			temp = input.nextLine();
+		} while (!temp.equals("paste below:"));
 
-                //input class starting time
-                inputTime(input, startTime);
-                input.useDelimiter("-");
-                temp = input.next();
-                if (temp.equals(" pm")){//convert time into military format
-                    startTime.hour = startTime.hour%12+ 12;
-                }
+		// input couses
+		while (input.hasNextLine() && courses < COURSES) { // keep inputing
+			// until maxed out
+			// or finished
+			// clear the temp objects
+			thisCourse = new Course();
+			startTime = new Time();
+			endTime = new Time();
 
-                //input class ending time
-                input.useDelimiter("\\t");
-                inputTime(input, endTime);
-                temp = input.next();
-                if (temp.equals(" pm")){//convert time into military format
-                    endTime.hour = endTime.hour%12+ 12;
-                }
+			input.useDelimiter("\\t");
+			temp = input.next();// check is there the SR
+			if (temp.trim().length()>0) { // if the first thing is SR, it means it's a new
+				// section
+				thisCourse.section[0].crn = input.nextInt();
+				thisCourse.subject = input.next();
+				thisCourse.courseNumber = input.next();
+				thisCourse.section[0].sectionNumber = input.next();// input
+				// course
+				// info
+				temp = input.next();
+				credit = input.nextFloat();
+				thisCourse.title = input.next();
+				classdays = input.next();
 
-                //get rid of useless info
-                for (int i = 0; i < 9; i++){
-                    temp = input.next();
-                }
+				// ignore classes with undetermined time
+				if (classdays.equals("TBA")) {
+					input.nextLine();
+					classdays = "";
+					continue;
 
-                //finish inputing info
-                thisCourse.section[0].instructor = input.next();
-                temp = input.next(); //don't care about date
-                thisCourse.section[0].location = input.nextLine().trim();
+				}
 
-                //match course with database
-                newCourse = true;
-                for (int i = courses - 1; i >= 0; i--){//go through all already existing courses
-                    if (thisCourse.subject.equals(database[i].subject) && thisCourse.courseNumber.equals(database[i].courseNumber)){//if the course already exist
-                        courseIndex = i;
-                        newCourse = false;
-                    }
-                }
-                if (newCourse){//if the course is not in database yet
-                    courseIndex = courses;
-                    database[courseIndex].subject = thisCourse.subject;
-                    database[courseIndex].courseNumber = thisCourse.courseNumber;
-                    database[courseIndex].credit = (int)(credit);
-                    database[courseIndex].title = thisCourse.title;
+				// input class starting time
+				inputTime(input, startTime);
+				input.useDelimiter("-");
+				temp = input.next();
+				if (temp.equals(" pm")) {// convert time into military format
+					startTime.hour = startTime.hour % 12 + 12;
+				}
 
-                    courses++; 
-                }
+				// input class ending time
+				input.useDelimiter("\\t");
+				inputTime(input, endTime);
+				temp = input.next();
+				if (temp.equals(" pm")) {// convert time into military format
+					endTime.hour = endTime.hour % 12 + 12;
+				}
 
-                if (database[courseIndex].sections >= SECTIONS){
-                    System.out.print( "Error: the number of sections in course " + database[courseIndex].subject + ' ' + database[courseIndex].courseNumber
-                        + " is larger than the maximum capacity of this program of " + SECTIONS+' '+thisCourse.section[0].sectionNumber); 
-                    keyboard.nextLine();
-                }
+				// get rid of useless info
+				for (int i = 0; i < 9; i++) {
+					temp = input.next();
+				}
 
-                //transfer info into database
-                database[courseIndex].section[database[courseIndex].sections].crn = thisCourse.section[0].crn;
-                database[courseIndex].section[database[courseIndex].sections].sectionNumber = thisCourse.section[0].sectionNumber;
+				// finish inputing info
+				thisCourse.section[0].instructor = input.next();
+				temp = input.next(); // don't care about date
+				thisCourse.section[0].location = input.nextLine().trim();
 
-                //inputing the times based on day of the week
-                for (int i = 0; i < classdays.length(); i++){
-                    switch (classdays.charAt(i)){
-                        case 'M':
-                        tempInt = 0;
-                        break;
-                        case 'T':
-                        tempInt = 1;
-                        break;
-                        case 'W':
-                        tempInt = 2;
-                        break;
-                        case 'R':
-                        tempInt = 3;
-                        break;
-                        case 'F':
-                        tempInt = 4;
-                    }
-                    database[courseIndex].section[database[courseIndex].sections].schedule[tempInt][0] = startTime;
-                    database[courseIndex].section[database[courseIndex].sections].schedule[tempInt][1] = endTime;
-                    database[courseIndex].section[database[courseIndex].sections].instructor = thisCourse.section[0].instructor;
-                    database[courseIndex].section[database[courseIndex].sections].location = thisCourse.section[0].location;
-                }
-                database[courseIndex].sections++;// cout << 'e';
-            }
-            else{//if there's no SR, it's probably continuation from previous line
-                classdays = input.next();
+				// match course with database
+				newCourse = true;
+				for (int i = courses - 1; i >= 0; i--) {// go through all
+					// already existing
+					// courses
+					if (thisCourse.subject.equals(database[i].subject)
+							&& thisCourse.courseNumber.equals(database[i].courseNumber)) {// if
+						// the
+						// course
+						// already
+						// exist
+						courseIndex = i;
+						newCourse = false;
+					}
+				}
+				if (newCourse) {// if the course is not in database yet
+					courseIndex = courses;
+					database[courseIndex].subject = thisCourse.subject;
+					database[courseIndex].courseNumber = thisCourse.courseNumber;
+					database[courseIndex].credit = (int) (credit);
+					database[courseIndex].title = thisCourse.title;
 
-                //input class starting time
-                startTime.hour = input.nextInt();
-                skipTilNum(input);
-                startTime.minute = input.nextInt();
-                input.useDelimiter("-");
-                temp = input.next();
-                if (temp.equals(" pm")){//convert time into military format
-                    startTime.hour = startTime.hour%12+ 12;
-                }
+					courses++;
+				}
 
-                //input class ending time
-                input.useDelimiter("\\t");
-                endTime.hour = input.nextInt();
-                skipTilNum(input);
-                endTime.minute = input.nextInt();
-                temp = input.next();
-                if (temp.equals(" pm")){//convert time into military format
-                    endTime.hour = endTime.hour%12+ 12;
-                }
+				if (database[courseIndex].sections >= SECTIONS) {
+					System.out.print("Error: the number of sections in course " + database[courseIndex].subject + ' '
+							+ database[courseIndex].courseNumber
+							+ " is larger than the maximum capacity of this program of " + SECTIONS + ' '
+							+ thisCourse.section[0].sectionNumber);
+					keyboard.nextLine();
+				}
 
-                input.nextLine();//get rid of remainning stuff
+				// transfer info into database
+				database[courseIndex].section[database[courseIndex].sections].crn = thisCourse.section[0].crn;
+				database[courseIndex].section[database[courseIndex].sections].sectionNumber = thisCourse.section[0].sectionNumber;
 
-                //inputing the times based on day of the week
-                for (int i = 0; i < classdays.length(); i++){
-                    switch (classdays.charAt(i)){
-                        case 'M':
-                        tempInt = 0;
-                        break;
-                        case 'T':
-                        tempInt = 1;
-                        break;
-                        case 'W':
-                        tempInt = 2;
-                        break;
-                        case 'R':
-                        tempInt = 3;
-                        break;
-                        case 'F':
-                        tempInt = 4;
-                    }
-                    database[courseIndex].section[database[courseIndex].sections - 1].schedule[tempInt][0] = startTime;
-                    database[courseIndex].section[database[courseIndex].sections - 1].schedule[tempInt][1] = endTime;
-                    //cout << 'd';// << database[0].title[3000];
-                }
-            }
-        }//cout << database[0].title[3000];
-        input.close();
-        return courses;
-    }
+				// inputing the times based on day of the week
+				for (int i = 0; i < classdays.length(); i++) {
+					switch (classdays.charAt(i)) {
+					case 'M':
+						tempInt = 0;
+						break;
+					case 'T':
+						tempInt = 1;
+						break;
+					case 'W':
+						tempInt = 2;
+						break;
+					case 'R':
+						tempInt = 3;
+						break;
+					case 'F':
+						tempInt = 4;
+					}
+					database[courseIndex].section[database[courseIndex].sections].schedule[tempInt][0] = startTime;
+					database[courseIndex].section[database[courseIndex].sections].schedule[tempInt][1] = endTime;
+					database[courseIndex].section[database[courseIndex].sections].instructor = thisCourse.section[0].instructor;
+					database[courseIndex].section[database[courseIndex].sections].location = thisCourse.section[0].location;
+				}
+				database[courseIndex].sections++;// cout << 'e';
+			} else {// if there's no SR, it's probably continuation from // previous line
+				if(!input.hasNext()){
+					break;
+				}
+				do {
+					classdays = input.next();
+				} while (classdays.trim().length()==0);
 
-    public static void skipTilNum(Scanner input){
-        while (!input.hasNextInt()){
-            try {
-                input.skip("\\D");
-            } catch(NoSuchElementException e) {
-                return;
-            }
-        }
-    }
-    
-    public static void inputTime(Scanner input, Time time){
-        //store the delimiter currently being used
-        String delimiter = input.delimiter().pattern();
-        input.useDelimiter("\\s");
-        String[] string = input.next().split(":");
-        time.hour = Math.abs(Integer.parseInt(string[0]));
-        //when a dash is in front of a number, it can be interpreted as a negative sign, so take the absolute value
-        time.minute = Integer.parseInt(string[1]);
-        input.useDelimiter(delimiter);
-    }
+				// input class starting time
+				inputTime(input, startTime);
+				input.useDelimiter("-");
+				temp = input.next();
+				if (temp.equals(" pm")) {// convert time into military format
+					startTime.hour = startTime.hour % 12 + 12;
+				}
 
-    void loadInstructors(Course database[], Preference preference, int courses){
-        String[] instructors = new String[Schedule_Planer.COURSES*Schedule_Planer.SECTIONS];
-        int Instructors = 0;
-        String instructor;
-        boolean newInstructor;
-        int input=1;
-        if (preference.instructor==0){
-            return;
-        }
-        
-        for (int course = 0; course < courses; course++){
-            for (int section = 0; section < database[course].sections; section++){
-                instructor = database[course].section[section].instructor;
-                newInstructor = true;
-                for (int i = 0; i < Instructors; i++){
-                    if (instructors[i].equals(instructor)){
-                        newInstructor = false;
-                    }
-                }
-                if (newInstructor){
-                    //cout << 's';
-                    instructors[Instructors] = instructor;
-                    Instructors++;
-                }
-            }
-        }
+				// input class ending time
+				input.useDelimiter("\\t");
+				inputTime(input, endTime);
+				temp = input.next();
+				if (temp.equals(" pm")) {// convert time into military format
+					endTime.hour = endTime.hour % 12 + 12;
+				}
 
-        for (int i = 0; i < Instructors; i++){
-            System.out.println(i+1 + ". " + instructors[i]);
-        }//cout << database[0].title[3000];
-        System.out.print("enter the number left of the professor(s) you want to take \n"
-            + "and separate them by a space, enter 0 to finish: ");
+				input.nextLine();// get rid of remainning stuff
 
-        input = keyboard.nextInt();
-        while (input != 0){
-            preference.instructors[preference.Instructors] = instructors[input - 1];
-            preference.Instructors++;
-            input = keyboard.nextInt();
-        }
-        return;
-    }
+				// inputing the times based on day of the week
+				for (int i = 0; i < classdays.length(); i++) {
+					switch (classdays.charAt(i)) {
+					case 'M':
+						tempInt = 0;
+						break;
+					case 'T':
+						tempInt = 1;
+						break;
+					case 'W':
+						tempInt = 2;
+						break;
+					case 'R':
+						tempInt = 3;
+						break;
+					case 'F':
+						tempInt = 4;
+					}
+					database[courseIndex].section[database[courseIndex].sections - 1].schedule[tempInt][0] = startTime;
+					database[courseIndex].section[database[courseIndex].sections - 1].schedule[tempInt][1] = endTime;
+					// cout << 'd';// << database[0].title[3000];
+				}
+			}
+		} // cout << database[0].title[3000];
+		input.close();
+		return courses;
+	}
 
-    int createPlans(final Course database[], Plan plan[], final int courses, Preference preference){
-        int plans = 0;
-        Plan thisPlan;
-        int[] thisPlanPath = new int[courses];
+	public static void skipTilNum(Scanner input) {
+		while (!input.hasNextInt()) {
+			try {
+				input.skip("\\D");
+			} catch (NoSuchElementException e) {
+				return;
+			}
+		}
+	}
 
-        while (thisPlanPath[0] < database[0].sections){// && plans < PLANS){
-            thisPlan = new Plan(courses, thisPlanPath);
-            if (plans >= PLANS - 1){
-                sortPlans(plan, plans);
-                plans = plans / 2;
-            }//*/
+	public static void inputTime(Scanner input, Time time) {
+		// store the delimiter currently being used
+		String delimiter = input.delimiter().pattern();
+		input.useDelimiter("\\s");
+		String[] string = input.next().split(":");
+		time.hour = Math.abs(Integer.parseInt(string[0]));
+		// when a dash is in front of a number, it can be interpreted as a
+		// negative sign, so take the absolute value
+		time.minute = Integer.parseInt(string[1]);
+		input.useDelimiter(delimiter);
+	}
 
-            thisPlan.evaluateScore(database, preference);
-            //getchar();
-            if (thisPlan.score != 0){
-                plan[plans] = thisPlan;
-                plans++;
-            }
+	void loadInstructors() {
+		String[] instructors = new String[Schedule_Planer.COURSES * Schedule_Planer.SECTIONS];
+		int Instructors = 0;
+		String instructor;
+		boolean newInstructor;
+		int input = 1;
+		if (preference.instructor == 0) {
+			return;
+		}
 
-            //increment to next path
-            thisPlanPath[courses-1]++;
-            for (int i = courses - 1; i > 0; i--){
-                if (thisPlanPath[i] >= database[i].sections){
-                    thisPlanPath[i] = thisPlanPath[i] % database[i].sections;
-                    thisPlanPath[i - 1]++;
-                }
-            }
-        }
+		for (int course = 0; course < courses; course++) {
+			for (int section = 0; section < database[course].sections; section++) {
+				instructor = database[course].section[section].instructor;
+				newInstructor = true;
+				for (int i = 0; i < Instructors; i++) {
+					if (instructors[i].equals(instructor)) {
+						newInstructor = false;
+					}
+				}
+				if (newInstructor) {
+					// cout << 's';
+					instructors[Instructors] = instructor;
+					Instructors++;
+				}
+			}
+		}
 
-        sortPlans(plan, plans);
-        return plans;
-    }
+		for (int i = 0; i < Instructors; i++) {
+			System.out.println(i + 1 + ". " + instructors[i]);
+		} // cout << database[0].title[3000];
+		System.out.print("enter the number left of the professor(s) you want to take \n"
+				+ "and separate them by a space, enter 0 to finish: ");
 
-    void sortPlans(Plan plan[], final int plans){
-        Plan temp;             // holding variable
-        for (int i = 0; i < plans; i++){
-            for (int j = 0; j < plans - 1 - i; j++){
-                if (plan[j].score < plan[j+1].score){
-                    temp = plan[j];
-                    plan[j] = plan[j + 1];
-                    plan[j + 1] = temp;
-                }
-            }
-        }
-        return;
-    }
+		input = keyboard.nextInt();
+		while (input != 0) {
+			preference.instructors[preference.Instructors] = instructors[input - 1];
+			preference.Instructors++;
+			input = keyboard.nextInt();
+		}
+		return;
+	}
+
+	void createPlans() {
+		plans = 0;
+		Plan thisPlan;
+		int[] thisPlanPath = new int[courses];
+
+		while (thisPlanPath[0] < database[0].sections) {// && plans < PLANS){
+			thisPlan = new Plan(courses, thisPlanPath);
+			if (plans >= PLANS - 1) {
+				sortPlans(plan, plans);
+				plans = plans / 2;
+			} // */
+
+			thisPlan.evaluateScore(database, preference);
+			if (thisPlan.score != 0) {
+				plan[plans] = thisPlan;
+				plans++;
+			}
+
+			// increment to next path
+			thisPlanPath[courses - 1]++;
+			for (int i = courses - 1; i > 0; i--) {
+				if (thisPlanPath[i] >= database[i].sections) {
+					thisPlanPath[i] = thisPlanPath[i] % database[i].sections;
+					thisPlanPath[i - 1]++;
+				}
+			}
+		}
+
+		sortPlans(plan, plans);
+	}
+
+	static void sortPlans(Plan plan[], final int plans) {
+		Plan temp; // holding variable
+		for (int i = 0; i < plans; i++) {
+			for (int j = 0; j < plans - 1 - i; j++) {
+				if (plan[j].score < plan[j + 1].score) {
+					temp = plan[j];
+					plan[j] = plan[j + 1];
+					plan[j + 1] = temp;
+				}
+			}
+		}
+		return;
+	}
+
+	public void startOutputGraphics(){
+		OutputGraphics og = new OutputGraphics(database, plan, plans, preference);
+		contentpane.add(og, "Output");
+		window.setSize(OutputGraphics.CHARTWIDTH+OutputGraphics.INFOWIDTH, OutputGraphics.CHARTWIDTH+250);
+		((CardLayout) contentpane.getLayout()).show(contentpane, "Output");
+	}
 }

@@ -10,7 +10,7 @@ public class Plan
 {
 	int[] path;
 	float score = 0;
-	private int start = 0;//these few varaiables are data for viewing the score decomposition using debugger
+	private int start = 0;//these few variables are data for viewing the score decomposition using debugger
 	private int end = 0;//they play no role in the functioning of the program
 	private int noon = 0;
 	private int instructor = 0;
@@ -47,6 +47,9 @@ public class Plan
 				}
 			}
 		}
+		//set score above zero for schedules that have no conflict just in case
+		//user set all other preference variables to zero
+		score+=0.001;
 
 		for (int day = 0; day < 5; day++){
 			//check when does each day start
@@ -87,7 +90,7 @@ public class Plan
 			}
 		}
 
-		//use coefficient of variation as a estamation of clustering of classes
+		//use coefficient of variation as a estimation of clustering of classes
 		int[] classTime = {0, 0, 0, 0, 0};//how much class time each day in minutes
 		for (int day =0; day <5; day++) {
 			for (int course=0; course<COURSES; course++) {

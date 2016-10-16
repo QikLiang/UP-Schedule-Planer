@@ -1,35 +1,37 @@
-import java.util.*;
 import java.awt.*;
-import javax.swing.*;
 import java.awt.event.*;
 
+@SuppressWarnings("serial")
 /**
  * this class takes care of ending graphics
  */
 public class OutputGraphics extends Panel implements KeyEventDispatcher
 {
-		final Course[] database;
-		final Plan[] plan;
-		private int currentPlan = 0;
-		private final int plans;
-		private final int RECTWIDTH = 100;
-		private final int RECTHEIGHT = 50;
-		private final int OFFSHIFTX = 75;
-		private final int OFFSHIFTY = 50;
-		private final int CHARTWIDTH = OFFSHIFTX+5*RECTWIDTH;
-		private final int CHARTHEIGHT = OFFSHIFTY+RECTHEIGHT*14;
-		private final int INFOWIDTH = 520;
-		private final Preference preference;
+	final Course[] database;
+	final Plan[] plan;
+	private int currentPlan = 0;
+	private final int plans;
+	public static final int RECTWIDTH = 100;
+	public static final int RECTHEIGHT = 50;
+	public static final int OFFSHIFTX = 75;
+	public static final int OFFSHIFTY = 50;
+	public static final int CHARTWIDTH = OFFSHIFTX+5*RECTWIDTH;
+	public static final int CHARTHEIGHT = OFFSHIFTY+RECTHEIGHT*14;
+	public static final int INFOWIDTH = 520;
+	private final Preference preference;
 
-		public OutputGraphics (Course[] initDatabase, Plan[] initPlan, int initPlans, Preference initPreference){
-			database = initDatabase;
-			plan = initPlan;
-			plans = initPlans;
-			preference = initPreference;
-		}
+	public OutputGraphics (Course[] initDatabase, Plan[] initPlan, int initPlans, Preference initPreference){
+		database = initDatabase;
+		plan = initPlan;
+		plans = initPlans;
+		preference = initPreference;
 
-    public void paint(Graphics g)
-    {
+		//Ask Java to tell me about what keys the user presses on the keyboard.
+		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(this);
+	}
+
+	public void paint(Graphics g)
+	{
 		if (plans==0) {
 			g.drawString("No compatiple schedule exists for the courses selected.", 100, 20);
 			return;
@@ -61,12 +63,12 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 				CHARTWIDTH, (int)(OFFSHIFTY+RECTHEIGHT*(preference.startTime.hour-8+preference.startTime.minute/60.0)));
 		g.drawLine(50, (int)(OFFSHIFTY+RECTHEIGHT*(preference.endTime.hour-8+preference.endTime.minute/60.0)),
 				CHARTWIDTH, (int)(OFFSHIFTY+RECTHEIGHT*(preference.endTime.hour-8+preference.endTime.minute/60.0)));
-		
+
 		g.setColor(Color.black);
 		g.drawString("Current Plan: "+(currentPlan+1)+"/"+plans
 				+String.format(" Score for current plan: %.1f", plan[currentPlan].score), 10, CHARTHEIGHT+20);
 		g.drawString("Use the arrow keys <- and -> to move between plans.",
-			   	10, CHARTHEIGHT+40);
+				10, CHARTHEIGHT+40);
 
 		Section section;
 		int lines = 0;
@@ -76,12 +78,12 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 			section = database[course].section[plan[currentPlan].path[course]];
 			drawSection(g, course, section);
 			g.drawString(String.format("%d %3s %s %s", section.crn,
-					   	database[course].subject, database[course].courseNumber,
+						database[course].subject, database[course].courseNumber,
 						section.sectionNumber), CHARTWIDTH+50, lines*30+30);
 			titleLines = drawLongString(g, database[course].title, lines, 200);
 			for (int i=0; i<preference.Instructors; i++) {
 				if(section.instructor.equals(preference.instructors[i])){
-					g.setColor(Color.orange);
+					g.setColor(Color.green);
 					break;
 				}
 			}
@@ -92,7 +94,7 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 		}
 		g.drawLine(CHARTWIDTH+190, 10, CHARTWIDTH+190, CHARTHEIGHT);
 		g.drawLine(CHARTWIDTH+340, 10, CHARTWIDTH+340, CHARTHEIGHT);
-    }//paint
+	}//paint
 
 	private int drawLongString(Graphics g, String string, int lines, int xCoord){
 		int StringLines = 0;
@@ -134,61 +136,58 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 		}
 	}
 
-    /**
-     * dispatchKeyEvent
-     *
-     */
-    public boolean dispatchKeyEvent(KeyEvent e) {
-        //Ignore KEY_RELEASED events (we only care when the key is pressed)
-        String params = e.paramString();
-        if (params.contains("KEY_RELEASED"))
-        {
-            return false;
-        }
+	/**
+	 * dispatchKeyEvent
+	 *
+	 */
+	public boolean dispatchKeyEvent(KeyEvent e) {
+		//Ignore KEY_RELEASED events (we only care when the key is pressed)
+		String params = e.paramString();
+		if (params.contains("KEY_RELEASED"))
+		{
+			return false;
+		}
 
-        //IF the keycode is an arrow key then handle it, otherwise ignore it.
-        int code = e.getKeyCode();
-        switch(code)
-        {
-            case KeyEvent.VK_LEFT:
+		//IF the keycode is an arrow key then handle it, otherwise ignore it.
+		int code = e.getKeyCode();
+		switch(code)
+		{
+			case KeyEvent.VK_LEFT:
 				if(currentPlan>0){
 					currentPlan--;
 				}
-            break;
-            case KeyEvent.VK_RIGHT:
+				break;
+			case KeyEvent.VK_RIGHT:
 				if(currentPlan+1<plans){
 					currentPlan++;
 				}
-            break;
-            default:
-            return false;         // this is a key I don't handle
-        }
+				break;
+			default:
+				return false;         // this is a key I don't handle
+		}
 
-        //Update the screen to show the avatar has moved
-        repaint();
+		//Update the screen to show the avatar has moved
+		repaint();
 
-        return true;
-    }//dispatchKeyEvent
+		return true;
+	}//dispatchKeyEvent
 
 	public void startGraphics (){
 
-        //Create a window for this program
-        final Frame myFrame = new Frame();
-        myFrame.setSize(CHARTWIDTH+INFOWIDTH, CHARTHEIGHT+150);
+		//Create a window for this program
+		final Frame myFrame = new Frame();
+		myFrame.setSize(CHARTWIDTH+INFOWIDTH, CHARTHEIGHT+150);
 
-        //Tell this Window to close when someone presses the close button
-        myFrame.addWindowListener(new java.awt.event.WindowAdapter() {
+		//Tell this Window to close when someone presses the close button
+		myFrame.addWindowListener(new java.awt.event.WindowAdapter() {
 			public void windowClosing(java.awt.event.WindowEvent e) {
 				System.exit(0);
 			};
 		});
 
-        //Ask Java to tell me about what keys the user presses on the keyboard.  
-        KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(this);
-
-        //Put graphics into window
-        myFrame.add(this);
-        myFrame.setVisible(true);
+		//Put graphics into window
+		myFrame.add(this);
+		myFrame.setVisible(true);
 
 	}
 
