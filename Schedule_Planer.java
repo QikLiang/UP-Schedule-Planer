@@ -1,9 +1,19 @@
 import java.awt.CardLayout;
 import java.awt.Desktop;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.NoSuchElementException;
 import java.util.Scanner;
+
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTextArea;
+import javax.swing.text.DefaultCaret;
 
 import java.io.*;
 
@@ -11,7 +21,7 @@ import java.io.*;
  * Main class. The main method and all big methods called by main
  *
  * @author Qi Liang
- * @version 2016.3.5
+ * @version 2016.10.16
  */
 public class Schedule_Planer {
 	//universal variables
@@ -21,9 +31,9 @@ public class Schedule_Planer {
 	//program can handle
 	Scanner keyboard = new Scanner(System.in);
 
-	public static boolean testing = true;
+	public static boolean testing = false;
 	//address of the database file
-	final String DATABASE = testing ? "database.txt" : "database.txt";
+	final String DATABASE = "database.txt";
 
 	//instance variables
 	Course[] database;
@@ -35,6 +45,9 @@ public class Schedule_Planer {
 	//gui variables
 	JFrame window;
 	JPanel contentpane;
+	CardLayout contentPaneLayout;
+	JPanel messagePane;
+	JTextArea messageBox;
 
 	/*
 	 * framework code. calls other methods for asking input, performing
@@ -68,69 +81,64 @@ public class Schedule_Planer {
 			database[i] = new Course();
 		}
 
-		System.out.println("Schedule planer ver 2.0 for University of Portland, by Qi Liang");
-
-		// prompt user for input and load data into database and preference object
-		courses = loadDatabase();
-		System.out.println("finish loading database\n\n\n");
-
-		// prompt user to select preference
+		//set up GUI
 		window = new JFrame("UP Schedule Planer");
-		window.setResizable(false);
+		//window.setResizable(false);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setSize(430, 450);
 		contentpane = new JPanel();
-		contentpane.setLayout(new CardLayout());
-		PreferenceGraphics pg = new PreferenceGraphics(this);
-		contentpane.add(pg, "Preference");
+		contentPaneLayout = new CardLayout();
+		contentpane.setLayout(contentPaneLayout);
+
+		//start with text display panel
+		messagePane = new JPanel();
+		messagePane.setLayout(new BoxLayout(messagePane, BoxLayout.Y_AXIS));
+		messageBox = new JTextArea();
+		messageBox.setPreferredSize(new Dimension(400, 400));
+		messageBox.setEditable(false);
+		((DefaultCaret) messageBox.getCaret()).setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
+		messagePane.add(messageBox);
+
+		//display GUI
+		contentpane.add(messagePane, "Message");
 		window.add(contentpane);
 		window.setVisible(true);
+
+		messageBox.append("Schedule planer ver 2.1 for University of Portland, by Qi Liang\n");
+
+		// prompt user for input and load data into database and preference object
+		loadDatabase();
 	}
 
 	/**
 	 * prompts user to input data, and store it in database
 	 *
-	 * @param database the database to store into into
-	 *
-	 * @param preference the object for storing user preference
-	 *
 	 * @return the number of courses in the database
 	 */
-	int loadDatabase() {
+	void loadDatabase() {
 		File file = new File(DATABASE);
 		Scanner input = null;
 		PrintWriter write = null;
-		String temp;
-		int tempInt = 0;
-		float credit;
 		boolean newFile;
-		boolean newCourse = true;
-		Course thisCourse = new Course();
-		int courseIndex = 0;
-		String classdays;
-		Time startTime = new Time();
-		Time endTime = new Time();
-		int courses = 0; // amount of courses in the database
+		int tempInt = 0;
 
 		// try to open text file for user to enter data
 		newFile = true;
 		if (file.exists()) {
-			System.out.print("Database seems to already exist, do you want to use it?\n1. Yes  2. No\n");
 			if(testing){
-				tempInt=1;
-			}else{
-				tempInt = keyboard.nextInt();
-				keyboard.nextLine();
-			}
-			if (tempInt == 1) {
 				newFile = false;
+			}else{
+				tempInt = JOptionPane.showConfirmDialog(messagePane,
+						"Database seems to already exist, do you want to use it?",
+						"Database exists", JOptionPane.YES_NO_OPTION);
+				newFile = tempInt!=JOptionPane.YES_OPTION;
 			}
 		}
 		if (newFile) {
 			try {
 				write = new PrintWriter(file);
 			} catch (FileNotFoundException e) {
-				System.out.println("Error: cannot open file to write.");
+				messageBox.append("\nError: cannot open file to write.");
 				System.exit(1);
 			}
 
@@ -145,32 +153,63 @@ public class Schedule_Planer {
 			write.println("paste below:\n");
 			write.close();
 			if (!Desktop.isDesktopSupported()) {
-				System.out.println("Error: Please open and edit '" + DATABASE + "' manually.");
+				messageBox.append("\nError: Please open and edit '" + DATABASE + "' manually.");
 			}
 			Desktop desktop = Desktop.getDesktop();
 			try {
 				desktop.open(file);
 			} catch (IOException e) {
-				System.out.println("Error: Please open and edit '" + DATABASE + "' manually.");
+				messageBox.append("\nError: Please open and edit '" + DATABASE + "' manually.");
 			}
 
-			System.out.println("After the text file has been saved and exited, press enter.");
-			keyboard.nextLine();
+			messageBox.append("\nFollow instructions on the text file that just poped up.");
+			messageBox.append("\nAfter the text file has been saved and exited, press Next.");
 		}
 
 		try {
 			input = new Scanner(file);
 		} catch (FileNotFoundException e) {
-			System.out.println("Error: cannot open file to read.");
+			messageBox.append("\nError: cannot open file to read.");
 			System.exit(1);
 		}
+		
+		final Scanner finalInput = input;//stop complier from complaining when used in button
+		Schedule_Planer mainProgram = this;//to pass into button
+		JButton next = new JButton("Next");
+		next.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				parseDatabase(finalInput);
+				messageBox.append("\n\n\nfinish loading database");
+
+				PreferenceGraphics pg = new PreferenceGraphics(mainProgram);
+				contentpane.add(pg, "Preference");
+				contentPaneLayout.show(contentpane, "Preference");
+			}
+		});
+		JPanel div = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+		div.add(next);
+		messagePane.add(div);
+		messagePane.revalidate();
+	}
+	
+	private void parseDatabase(Scanner input){
+		int tempInt=0;
+		String temp;
+		float credit;
+		boolean newCourse = true;
+		Course thisCourse = new Course();
+		int courseIndex = 0;
+		String classdays;
+		Time startTime = new Time();
+		Time endTime = new Time();
 
 		// remove instructions before parsing
 		do {
 			temp = input.nextLine();
 		} while (!temp.equals("paste below:"));
 
-		// input couses
+		// input courses
 		while (input.hasNextLine() && courses < COURSES) { // keep inputing
 			// until maxed out
 			// or finished
@@ -313,7 +352,7 @@ public class Schedule_Planer {
 					endTime.hour = endTime.hour % 12 + 12;
 				}
 
-				input.nextLine();// get rid of remainning stuff
+				input.nextLine();// get rid of remaining stuff
 
 				// inputing the times based on day of the week
 				for (int i = 0; i < classdays.length(); i++) {
@@ -340,7 +379,6 @@ public class Schedule_Planer {
 			}
 		} // cout << database[0].title[3000];
 		input.close();
-		return courses;
 	}
 
 	public static void skipTilNum(Scanner input) {
