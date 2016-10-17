@@ -96,6 +96,14 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 		g.drawLine(CHARTWIDTH+340, 10, CHARTWIDTH+340, CHARTHEIGHT);
 	}//paint
 
+	/**
+	 * helper method that line-wraps a string to not exceed 16 characters per line
+	 * @param g graphics variable for calling drawString
+	 * @param string string to draw
+	 * @param lines y coordinate in units of number of lines from top of screen
+	 * @param xCoord x coordinate for calling drawString
+	 * @return the new lines value for the next call to this function to not overlap text
+	 */
 	private int drawLongString(Graphics g, String string, int lines, int xCoord){
 		int StringLines = 0;
 		int lastIndex;
@@ -115,6 +123,12 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 		return StringLines;
 	}
 
+	/**
+	 * given a section variable, draw its class time on the chart
+	 * @param g graphics variable
+	 * @param course course variable for the name of the course
+	 * @param section the section variable to draw
+	 */
 	private void drawSection(Graphics g, int course, Section section){
 		Time startTime, endTime;
 		int rectX, rectY, rectHeight;
@@ -138,7 +152,7 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 
 	/**
 	 * dispatchKeyEvent
-	 *
+	 * turn to the next or previous page when arrow keys are pressed
 	 */
 	public boolean dispatchKeyEvent(KeyEvent e) {
 		//Ignore KEY_RELEASED events (we only care when the key is pressed)
@@ -171,24 +185,4 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 
 		return true;
 	}//dispatchKeyEvent
-
-	public void startGraphics (){
-
-		//Create a window for this program
-		final Frame myFrame = new Frame();
-		myFrame.setSize(CHARTWIDTH+INFOWIDTH, CHARTHEIGHT+150);
-
-		//Tell this Window to close when someone presses the close button
-		myFrame.addWindowListener(new java.awt.event.WindowAdapter() {
-			public void windowClosing(java.awt.event.WindowEvent e) {
-				System.exit(0);
-			};
-		});
-
-		//Put graphics into window
-		myFrame.add(this);
-		myFrame.setVisible(true);
-
-	}
-
 }

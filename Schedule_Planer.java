@@ -49,26 +49,14 @@ public class Schedule_Planer {
 	JPanel messagePane;
 	JTextArea messageBox;
 
+	public static void main(String[] args) {
+		Schedule_Planer planer = new Schedule_Planer();
+	}
+
 	/*
 	 * framework code. calls other methods for asking input, performing
 	 * calculations, and output results
 	 */
-	public static void main(String[] args) {
-		Schedule_Planer planer = new Schedule_Planer();
-
-		/*
-		// prompt the user to select professors they want and load into preference
-		planer.loadInstructors();
-
-		// enumerate all possible schedules based on database
-		plans = planer.createPlans(database, plan, courses, preference);
-
-		// show the plans generated to the user
-		OutputGraphics graphics = new OutputGraphics(database, plan, plans, preference);
-		graphics.startGraphics();
-		 */
-	}
-
 	private Schedule_Planer(){
 		// declaration and instantiation
 		database = new Course[COURSES];
@@ -107,15 +95,15 @@ public class Schedule_Planer {
 		messageBox.append("Schedule planer ver 2.1 for University of Portland, by Qi Liang\n");
 
 		// prompt user for input and load data into database and preference object
-		loadDatabase();
+		setupDatabase();
 	}
 
 	/**
-	 * prompts user to input data, and store it in database
+	 * create and setup database file, and prompt user to input data
 	 *
 	 * @return the number of courses in the database
 	 */
-	void loadDatabase() {
+	void setupDatabase() {
 		File file = new File(DATABASE);
 		Scanner input = null;
 		PrintWriter write = null;
@@ -193,6 +181,11 @@ public class Schedule_Planer {
 		messagePane.revalidate();
 	}
 	
+	/**
+	 * parse the database file user has inputed
+	 * 
+	 * @param input a scanner variable connected to the database file
+	 */
 	private void parseDatabase(Scanner input){
 		int tempInt=0;
 		String temp;
@@ -381,6 +374,12 @@ public class Schedule_Planer {
 		input.close();
 	}
 
+	/**
+	 * given a scanner variable, skip input from scanner until the next
+	 * token is a number
+	 * 
+	 * @param input the sanner variable to skip from
+	 */
 	public static void skipTilNum(Scanner input) {
 		while (!input.hasNextInt()) {
 			try {
@@ -391,6 +390,13 @@ public class Schedule_Planer {
 		}
 	}
 
+	/**
+	 * parse input from scanner variable and store it in a time variable
+	 * does not include am/pm info
+	 * 
+	 * @param input the input stream
+	 * @param time the time variable to store data into
+	 */
 	public static void inputTime(Scanner input, Time time) {
 		// store the delimiter currently being used
 		String delimiter = input.delimiter().pattern();
@@ -403,48 +409,11 @@ public class Schedule_Planer {
 		input.useDelimiter(delimiter);
 	}
 
-	void loadInstructors() {
-		String[] instructors = new String[Schedule_Planer.COURSES * Schedule_Planer.SECTIONS];
-		int Instructors = 0;
-		String instructor;
-		boolean newInstructor;
-		int input = 1;
-		if (preference.instructor == 0) {
-			return;
-		}
-
-		for (int course = 0; course < courses; course++) {
-			for (int section = 0; section < database[course].sections; section++) {
-				instructor = database[course].section[section].instructor;
-				newInstructor = true;
-				for (int i = 0; i < Instructors; i++) {
-					if (instructors[i].equals(instructor)) {
-						newInstructor = false;
-					}
-				}
-				if (newInstructor) {
-					// cout << 's';
-					instructors[Instructors] = instructor;
-					Instructors++;
-				}
-			}
-		}
-
-		for (int i = 0; i < Instructors; i++) {
-			System.out.println(i + 1 + ". " + instructors[i]);
-		} // cout << database[0].title[3000];
-		System.out.print("enter the number left of the professor(s) you want to take \n"
-				+ "and separate them by a space, enter 0 to finish: ");
-
-		input = keyboard.nextInt();
-		while (input != 0) {
-			preference.instructors[preference.Instructors] = instructors[input - 1];
-			preference.Instructors++;
-			input = keyboard.nextInt();
-		}
-		return;
-	}
-
+	/**
+	 * Enumerate through all possible class schedules and put all viable schedules
+	 * input plan[]. When number of plans exceed array size, the array is shorted
+	 * and the half with lower scores is discarded, and then continue.
+	 */
 	void createPlans() {
 		plans = 0;
 		Plan thisPlan;
@@ -476,6 +445,11 @@ public class Schedule_Planer {
 		sortPlans(plan, plans);
 	}
 
+	/**
+	 * a bubble short algorithm that shorts the plans into descending order by score
+	 * @param plan array with all the plans in it
+	 * @param plans how many elements of the array is filled
+	 */
 	static void sortPlans(Plan plan[], final int plans) {
 		Plan temp; // holding variable
 		for (int i = 0; i < plans; i++) {
@@ -490,6 +464,9 @@ public class Schedule_Planer {
 		return;
 	}
 
+	/**
+	 * create and display output graphics using database and preference info
+	 */
 	public void startOutputGraphics(){
 		OutputGraphics og = new OutputGraphics(database, plan, plans, preference);
 		contentpane.add(og, "Output");

@@ -58,6 +58,11 @@ public class PreferenceGraphics extends JPanel{
 				add( page2(), "page2" );
 		}
 
+		/**
+		 * extract a list of instructors from database and add them to instructorList
+		 * @param database
+		 * @param courses
+		 */
 		void loadInstructors(Course database[], int courses) {
 				//add instructors
 				instructorList= new ArrayList<>();
@@ -71,6 +76,10 @@ public class PreferenceGraphics extends JPanel{
 				}
 		}
 
+		/**
+		 * graphics on page 1 of preference menu
+		 * @return
+		 */
 		JPanel page1(){
 				final String ampm[]= {"AM", "PM"};
 
@@ -212,6 +221,10 @@ public class PreferenceGraphics extends JPanel{
 				return page1;
 		}
 
+		/**
+		 * graphics on page 2 of preference menu
+		 * @return
+		 */
 		JPanel page2(){
 				JPanel page2 = new JPanel();
 
@@ -272,7 +285,9 @@ public class PreferenceGraphics extends JPanel{
 				return page2;
 		}
 
-		//put info from gui into preference variable
+		/**
+		 * put info from gui into preference variable
+		 */
 		private void loadPreference(){
 				//start
 				preference.start = start.getValue();
