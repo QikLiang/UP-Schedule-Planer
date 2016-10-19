@@ -6,6 +6,7 @@ import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -83,13 +84,21 @@ public class PreferenceGraphics extends JPanel{
 		JPanel page1(){
 				final String ampm[]= {"AM", "PM"};
 
+				//page1
 				JPanel page1 = new JPanel();
 				page1.setLayout( new BoxLayout(page1, BoxLayout.Y_AXIS));
-				JPanel div0 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
-				div0.add( new JLabel("Please set your preference in the text boxes"));
-				div0.add( new JLabel("and use the slide bars to evaluate how important it is"));
-				page1.add(div0);
 
+				//instructions
+				JPanel div01 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+				div01.setMaximumSize(new Dimension(500, 200));
+				div01.add( new JLabel("Please set your preference in the text boxes"));
+				page1.add(div01);
+				JPanel div02 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+				div02.setMaximumSize(new Dimension(500, 200));
+				div02.add( new JLabel("and use the slide bars to evaluate how important it is"));
+				page1.add(div02);
+
+				//start text
 				JPanel div1 = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
 				div1.setMaximumSize(new Dimension(500,200));
 				startHour = new JTextField();
@@ -106,6 +115,7 @@ public class PreferenceGraphics extends JPanel{
 				div1.add( startApm );
 				page1.add( div1 );
 
+				//start slider
 				start = new JSlider( JSlider.HORIZONTAL, -10, 10, 0 );
 				start.setMajorTickSpacing(10);
 				start.setPaintLabels(true);
@@ -113,6 +123,7 @@ public class PreferenceGraphics extends JPanel{
 				div2.add(start);
 				page1.add( div2 );
 
+				//end text
 				JPanel div3 = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
 				div3.setMaximumSize(new Dimension(500,200));
 				//div3.setPreferredSize( new Dimension(500, 10) );
@@ -131,6 +142,7 @@ public class PreferenceGraphics extends JPanel{
 				div3.add( endApm );
 				page1.add( div3 );
 
+				//end slider
 				end = new JSlider( JSlider.HORIZONTAL, -10, 10, 0 );
 				end.setMajorTickSpacing(10);
 				end.setPaintLabels(true);
@@ -138,46 +150,52 @@ public class PreferenceGraphics extends JPanel{
 				div4.add(end);
 				page1.add( div4 );
 
-				JPanel div5 = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-				div5.setMinimumSize(new Dimension(400, 80));
+				//noon
+				JPanel div5 = new JPanel();
+				div5.setLayout(new BoxLayout(div5, BoxLayout.Y_AXIS));
+				div5.setMinimumSize(new Dimension(400, 250));
+				div5.setMaximumSize(new Dimension(400, 300));
 
 				//noon start
+				JPanel row1 = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
 				noonStartHour = new JTextField();
 				noonStartHour.setColumns(2);
 				noonStartHour.setText("11");
-				div5.add( new JLabel("have a lunch break sometime between ") );
-				div5.add( noonStartHour );
-				div5.add( new JLabel(":") );
+				row1.add( new JLabel("have a lunch break sometime between ") );
+				row1.add( noonStartHour );
+				row1.add( new JLabel(":") );
 				noonStartMinute = new JTextField();
 				noonStartMinute.setColumns(2);
 				noonStartMinute.setText("00");
-				div5.add(noonStartMinute);
+				row1.add(noonStartMinute);
 				noonStartApm = new JComboBox<>( ampm );
-				div5.add( noonStartApm );
+				row1.add( noonStartApm );
+				div5.add(row1);
 
 				//noon end
+				JPanel row2 = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
 				noonEndHour = new JTextField();
 				noonEndHour.setColumns(2);
 				noonEndHour.setText("1");
-				div5.add( new JLabel(" and\n") );
-				div5.add( noonEndHour );
-				div5.add( new JLabel(":") );
+				row2.add( new JLabel(" and\n") );
+				row2.add( noonEndHour );
+				row2.add( new JLabel(":") );
 				noonEndMinute = new JTextField();
 				noonEndMinute.setColumns(2);
 				noonEndMinute.setText("00");
-				div5.add(noonEndMinute);
+				row2.add(noonEndMinute);
 				noonEndApm = new JComboBox<>( ampm );
 				noonEndApm.setSelectedIndex(1);
-				div5.add( noonEndApm );
-				page1.add( div5 );
+				row2.add( noonEndApm );
 
 				//noon length
-				div5.add( new JLabel(" that lasts for at least ") );
+				row2.add( new JLabel(" that lasts for at least ") );
 				noonLength = new JTextField();
 				noonLength.setColumns(2);
 				noonLength.setText("45");
-				div5.add(noonLength);
-				div5.add( new JLabel(" minutes") );
+				row2.add(noonLength);
+				row2.add( new JLabel(" minutes") );
+				div5.add(row2);
 				page1.add( div5 );
 
 				noon = new JSlider( JSlider.HORIZONTAL, 0, 10, 0 );
@@ -203,6 +221,9 @@ public class PreferenceGraphics extends JPanel{
 				JPanel div8 = new JPanel();
 				div8.add(cluster);
 				page1.add( div8 );
+				
+				//glue
+				page1.add(Box.createVerticalGlue());
 
 				//next
 				JButton next = new JButton("Next");
