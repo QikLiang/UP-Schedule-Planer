@@ -71,9 +71,9 @@ public class Schedule_Planer {
 
 		//set up GUI
 		window = new JFrame("UP Schedule Planer");
-		//window.setResizable(false);
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setSize(430, 450);
+		window.setLocationByPlatform(true);
 		contentpane = new JPanel();
 		contentPaneLayout = new CardLayout();
 		contentpane.setLayout(contentPaneLayout);
@@ -91,6 +91,7 @@ public class Schedule_Planer {
 		contentpane.add(messagePane, "Message");
 		window.add(contentpane);
 		window.setVisible(true);
+		window.setResizable(false);
 
 		messageBox.append("Schedule planer ver 2.1 for University of Portland, by Qi Liang\n");
 
@@ -116,7 +117,7 @@ public class Schedule_Planer {
 			if(testing){
 				newFile = false;
 			}else{
-				tempInt = JOptionPane.showConfirmDialog(messagePane,
+				tempInt = JOptionPane.showConfirmDialog(null, //window,
 						"Database seems to already exist, do you want to use it?",
 						"Database exists", JOptionPane.YES_NO_OPTION);
 				newFile = tempInt!=JOptionPane.YES_OPTION;
@@ -470,7 +471,8 @@ public class Schedule_Planer {
 	public void startOutputGraphics(){
 		OutputGraphics og = new OutputGraphics(database, plan, plans, preference);
 		contentpane.add(og, "Output");
-		window.setSize(OutputGraphics.CHARTWIDTH+OutputGraphics.INFOWIDTH, OutputGraphics.CHARTWIDTH+250);
+		window.setSize(OutputGraphics.CHARTWIDTH+OutputGraphics.INFOWIDTH, OutputGraphics.CHARTHEIGHT+100);
+		window.setLocationRelativeTo(null);
 		((CardLayout) contentpane.getLayout()).show(contentpane, "Output");
 	}
 }
