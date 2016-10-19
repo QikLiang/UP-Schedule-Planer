@@ -32,44 +32,50 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 
 	public void paint(Graphics g)
 	{
+		//when there's no plans
 		if (plans==0) {
 			g.drawString("No compatiple schedule exists for the courses selected.", 100, 20);
 			return;
 		}
+		
+		//days marks above the chart
 		g.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
 		String[] days = {"Monday","Tuesday","Wednesday","Thursday","Friday"};
 		for (int day=0; day<5; day++) {
 			g.drawString(days[day],100+day*RECTWIDTH,20);
 		}
 
+		//hours marks left of chart
 		for (int hour = 8; hour <= 12; hour++) {
-			g.drawString(hour+" AM", 10, (hour-8)*RECTHEIGHT+OFFSHIFTY+5);
+			g.drawString(hour+" AM", hour>9 ? 2:10, (hour-8)*RECTHEIGHT+OFFSHIFTY+5);
 		}
-
 		for (int hour = 1; hour <= 10; hour++) {
-			g.drawString(hour+" PM", 10, (hour+12-8)*RECTHEIGHT+OFFSHIFTY+5);
+			g.drawString(hour+" PM", hour>9 ? 2:10, (hour+12-8)*RECTHEIGHT+OFFSHIFTY+5);
 		}
 
+		//grid lines for the chart
 		for (int y = OFFSHIFTY; y<=CHARTHEIGHT; y+=RECTHEIGHT) {
 			g.drawLine(50, y, CHARTWIDTH, y);
 		}
-
 		for (int x = OFFSHIFTX; x<=CHARTWIDTH; x+=RECTWIDTH) {
 			g.drawLine(x, 30, x, CHARTHEIGHT);
 		}
 
+		//draw lines where user prefer day to start and end
 		g.setColor(Color.red);
 		g.drawLine(50, (int)(OFFSHIFTY+RECTHEIGHT*(preference.startTime.hour-8+preference.startTime.minute/60.0)),
 				CHARTWIDTH, (int)(OFFSHIFTY+RECTHEIGHT*(preference.startTime.hour-8+preference.startTime.minute/60.0)));
 		g.drawLine(50, (int)(OFFSHIFTY+RECTHEIGHT*(preference.endTime.hour-8+preference.endTime.minute/60.0)),
 				CHARTWIDTH, (int)(OFFSHIFTY+RECTHEIGHT*(preference.endTime.hour-8+preference.endTime.minute/60.0)));
 
+		//info below the chart
 		g.setColor(Color.black);
 		g.drawString("Current Plan: "+(currentPlan+1)+"/"+plans
 				+String.format(" Score for current plan: %.1f", plan[currentPlan].score), 10, CHARTHEIGHT+20);
 		g.drawString("Use the arrow keys <- and -> to move between plans.",
 				10, CHARTHEIGHT+40);
 
+		//items in the chart itself
 		Section section;
 		int lines = 0;
 		int titleLines = 0;
@@ -83,7 +89,7 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 			titleLines = drawLongString(g, database[course].title, lines, 200);
 			for (int i=0; i<preference.Instructors; i++) {
 				if(section.instructor.equals(preference.instructors[i])){
-					g.setColor(Color.green);
+					g.setColor(Color.green.darker());
 					break;
 				}
 			}
@@ -180,7 +186,6 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 				return false;         // this is a key I don't handle
 		}
 
-		//Update the screen to show the avatar has moved
 		repaint();
 
 		return true;
