@@ -4,7 +4,6 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.NoSuchElementException;
 import java.util.Scanner;
 
 import javax.swing.BoxLayout;
@@ -135,7 +134,7 @@ public class Schedule_Planer {
 			write.println(
 					"copy information about the courses you want to take from selfserve (the whole row for each section) ");
 			write.println(
-					"and paste it below. Press enter after each course to make sure the next section is    on a new line.");
+					"and paste it below. Press enter after each course to make sure the next section is on a new line.");
 			write.println("Save the document and close it. Example:\n");
 			write.println(
 					"SR   40299   EXP 203 A   1   3.000   Introduction to Computer Science    MWF 11:25 am-12:20 pm   30  2   28  0   0   0   0   0   0   James Michael Schmidt (P)   01/11-04/28 SHILEY 301\n\n");
@@ -168,7 +167,13 @@ public class Schedule_Planer {
 		next.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				parseDatabase(finalInput);
+				boolean parsed = parseDatabase(finalInput);
+				//if parsing failed
+				if(!parsed){
+					next.setEnabled(false);
+					return;
+				}
+
 				messageBox.append("\n\n\nfinish loading database");
 
 				PreferenceGraphics pg = new PreferenceGraphics(mainProgram);
@@ -186,8 +191,10 @@ public class Schedule_Planer {
 	 * parse the database file user has inputed
 	 * 
 	 * @param input a scanner variable connected to the database file
+	 * @return true if database is successfully parsed and data is enter, false otherwise
 	 */
-	private void parseDatabase(Scanner input){
+	private boolean parseDatabase(Scanner input){
+		boolean success = true;
 		int tempInt=0;
 		String temp;
 		float credit;
@@ -197,81 +204,58 @@ public class Schedule_Planer {
 		String classdays;
 		Time startTime = new Time();
 		Time endTime = new Time();
+		String line[];
 
 		// remove instructions before parsing
 		do {
 			temp = input.nextLine();
 		} while (!temp.equals("paste below:"));
 
-		// input courses
-		while (input.hasNextLine() && courses < COURSES) { // keep inputing
-			// until maxed out
-			// or finished
+		//keep inputing until maxed out or finished
+		while (input.hasNextLine() && courses < COURSES) { 
 			// clear the temp objects
 			thisCourse = new Course();
 			startTime = new Time();
 			endTime = new Time();
 
-			input.useDelimiter("\\t");
-			temp = input.next();// check is there the SR
-			if (temp.trim().length()>0) { // if the first thing is SR, it means it's a new
-				// section
-				thisCourse.section[0].crn = input.nextInt();
-				thisCourse.subject = input.next();
-				thisCourse.courseNumber = input.next();
-				thisCourse.section[0].sectionNumber = input.next();// input
-				// course
-				// info
-				temp = input.next();
-				credit = input.nextFloat();
-				thisCourse.title = input.next();
-				classdays = input.next();
+			line = input.nextLine().split("\\t");
+			//stop of line doesn't have the right length
+			if(line.length<21){
+				continue;
+			}
+
+			//input shared between the two cases of whether the line is a new section
+			classdays = line[8];
+			Time.parseTime(line[9], startTime, endTime);
+
+			// if the first thing is SR, it means it's a new section
+			if (line[0].trim().length()>0) { 
+				thisCourse.section[0].crn = Integer.parseInt(line[1]);
+				thisCourse.subject = line[2];
+				thisCourse.courseNumber = line[3];
+				thisCourse.section[0].sectionNumber = line[4];
+				// course info
+				credit = Float.parseFloat(line[6]);
+				thisCourse.title = line[7];
 
 				// ignore classes with undetermined time
 				if (classdays.equals("TBA")) {
-					input.nextLine();
 					classdays = "";
 					continue;
 
 				}
-
-				// input class starting time
-				inputTime(input, startTime);
-				input.useDelimiter("-");
-				temp = input.next();
-				if (temp.equals(" pm")) {// convert time into military format
-					startTime.hour = startTime.hour % 12 + 12;
-				}
-
-				// input class ending time
-				input.useDelimiter("\\t");
-				inputTime(input, endTime);
-				temp = input.next();
-				if (temp.equals(" pm")) {// convert time into military format
-					endTime.hour = endTime.hour % 12 + 12;
-				}
-
-				// get rid of useless info
-				for (int i = 0; i < 9; i++) {
-					temp = input.next();
-				}
-
+				
 				// finish inputing info
-				thisCourse.section[0].instructor = input.next();
-				temp = input.next(); // don't care about date
-				thisCourse.section[0].location = input.nextLine().trim();
+				thisCourse.section[0].instructor = line[19];
+				thisCourse.section[0].location = line[21].trim();
 
 				// match course with database
 				newCourse = true;
-				for (int i = courses - 1; i >= 0; i--) {// go through all
-					// already existing
-					// courses
+				// go through all already existing courses
+				for (int i = courses - 1; i >= 0; i--) {
+					// if the course already exist
 					if (thisCourse.subject.equals(database[i].subject)
-							&& thisCourse.courseNumber.equals(database[i].courseNumber)) {// if
-						// the
-						// course
-						// already
-						// exist
+							&& thisCourse.courseNumber.equals(database[i].courseNumber)) {
 						courseIndex = i;
 						newCourse = false;
 					}
@@ -287,11 +271,11 @@ public class Schedule_Planer {
 				}
 
 				if (database[courseIndex].sections >= SECTIONS) {
-					System.out.print("Error: the number of sections in course " + database[courseIndex].subject + ' '
+					messageBox.append("\n\nError: the number of sections in course " + database[courseIndex].subject + ' '
 							+ database[courseIndex].courseNumber
 							+ " is larger than the maximum capacity of this program of " + SECTIONS + ' '
 							+ thisCourse.section[0].sectionNumber);
-					keyboard.nextLine();
+					success = false;
 				}
 
 				// transfer info into database
@@ -321,33 +305,8 @@ public class Schedule_Planer {
 					database[courseIndex].section[database[courseIndex].sections].instructor = thisCourse.section[0].instructor;
 					database[courseIndex].section[database[courseIndex].sections].location = thisCourse.section[0].location;
 				}
-				database[courseIndex].sections++;// cout << 'e';
-			} else {// if there's no SR, it's probably continuation from // previous line
-				if(!input.hasNext()){
-					break;
-				}
-				do {
-					classdays = input.next();
-				} while (classdays.trim().length()==0);
-
-				// input class starting time
-				inputTime(input, startTime);
-				input.useDelimiter("-");
-				temp = input.next();
-				if (temp.equals(" pm")) {// convert time into military format
-					startTime.hour = startTime.hour % 12 + 12;
-				}
-
-				// input class ending time
-				input.useDelimiter("\\t");
-				inputTime(input, endTime);
-				temp = input.next();
-				if (temp.equals(" pm")) {// convert time into military format
-					endTime.hour = endTime.hour % 12 + 12;
-				}
-
-				input.nextLine();// get rid of remaining stuff
-
+				database[courseIndex].sections++;
+			} else {// if there's no SR, it's probably continuation from previous line
 				// inputing the times based on day of the week
 				for (int i = 0; i < classdays.length(); i++) {
 					switch (classdays.charAt(i)) {
@@ -368,46 +327,11 @@ public class Schedule_Planer {
 					}
 					database[courseIndex].section[database[courseIndex].sections - 1].schedule[tempInt][0] = startTime;
 					database[courseIndex].section[database[courseIndex].sections - 1].schedule[tempInt][1] = endTime;
-					// cout << 'd';// << database[0].title[3000];
 				}
 			}
-		} // cout << database[0].title[3000];
+		} 
 		input.close();
-	}
-
-	/**
-	 * given a scanner variable, skip input from scanner until the next
-	 * token is a number
-	 * 
-	 * @param input the sanner variable to skip from
-	 */
-	public static void skipTilNum(Scanner input) {
-		while (!input.hasNextInt()) {
-			try {
-				input.skip("\\D");
-			} catch (NoSuchElementException e) {
-				return;
-			}
-		}
-	}
-
-	/**
-	 * parse input from scanner variable and store it in a time variable
-	 * does not include am/pm info
-	 * 
-	 * @param input the input stream
-	 * @param time the time variable to store data into
-	 */
-	public static void inputTime(Scanner input, Time time) {
-		// store the delimiter currently being used
-		String delimiter = input.delimiter().pattern();
-		input.useDelimiter("\\s");
-		String[] string = input.next().split(":");
-		time.hour = Math.abs(Integer.parseInt(string[0]));
-		// when a dash is in front of a number, it can be interpreted as a
-		// negative sign, so take the absolute value
-		time.minute = Integer.parseInt(string[1]);
-		input.useDelimiter(delimiter);
+		return success;
 	}
 
 	/**
