@@ -132,7 +132,7 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 	/**
 	 * given a section variable, draw its class time on the chart
 	 * @param g graphics variable
-	 * @param course course variable for the name of the course
+	 * @param course index in course array
 	 * @param section the section variable to draw
 	 */
 	private void drawSection(Graphics g, int course, Section section){
@@ -149,9 +149,15 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 				g.fillRect(rectX, rectY, RECTWIDTH, rectHeight);
 				g.setColor(Color.black);
 				g.drawRect(rectX, rectY, RECTWIDTH, rectHeight);
-				g.drawString(String.format("%d:%02d", startTime.hour, startTime.minute), rectX+10, rectY+14);
-				g.drawString(database[course].subject+" "+database[course].courseNumber, rectX+10, rectY+rectHeight/2+6);
-				g.drawString(String.format("%d:%02d", endTime.hour, endTime.minute), rectX+10, rectY+rectHeight-2);
+				String words = String.format("%d:%02d", startTime.hour, startTime.minute);
+				int stringWidth = g.getFontMetrics().stringWidth(words);
+				g.drawString(words, rectX+(RECTWIDTH-stringWidth)/2, rectY+14);
+				words = database[course].subject+" "+database[course].courseNumber;
+				stringWidth = g.getFontMetrics().stringWidth(words);
+				g.drawString(words, rectX+(RECTWIDTH-stringWidth)/2, rectY+rectHeight/2+6);
+				words = String.format("%d:%02d", endTime.hour, endTime.minute);
+				stringWidth = g.getFontMetrics().stringWidth(words);
+				g.drawString(words, rectX+(RECTWIDTH-stringWidth)/2, rectY+rectHeight-2);
 			}
 		}
 	}
