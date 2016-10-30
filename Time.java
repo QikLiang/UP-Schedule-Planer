@@ -11,6 +11,15 @@ public class Time
 		hour =25;
 		minute = 0;
 	}
+	
+	public Time(int setHour, int setMinute){
+		hour = setHour;
+		minute = setMinute;
+	}
+	
+	public void increment12Hours(){
+		hour = hour%12 +12;
+	}
 
 	/**
 	 * parse string into time variable

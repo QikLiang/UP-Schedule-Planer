@@ -21,5 +21,7 @@ public class Preference
 		ArrayList<String> instructorList = new ArrayList<>(Schedule_Planer.COURSES);
 		int Instructors=0;//number of instructors in the instructors array
 		int clustering=0;
+		int externalCommitments;
+		ArrayList<Section> events = new ArrayList<>();//user's external commitments
 
 }
