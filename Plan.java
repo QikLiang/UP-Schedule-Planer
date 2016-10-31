@@ -15,6 +15,7 @@ public class Plan
 	private int noon = 0;
 	private int instructor = 0;
 	private double dispersion=0;
+	private double events=0;
 	final int COURSES;
 	int Courses[] = {0,0,0,0,0};//number of courses a day, start out with no classes each day until schedule is loaded
 	Schedule[][] schedule;
@@ -111,9 +112,55 @@ public class Plan
 		cov=Math.sqrt(cov)/mean;
 		dispersion=cov;
 		score+=preference.clustering*cov;
+		
+		//external commitments
+		int numEvents = preference.events.size();
+		for(int event=0; event<numEvents; event++){
+			int numPerWeek = 0;
+			Time thisEvent[][] = preference.events.get(event).schedule;
+			//count number of times in the week that the event occurs
+			for(int day=0; day<5; day++){
+				if(thisEvent[day][0].hour!=25){
+					numPerWeek++;
+				}
+			}
+		fitEventBetweenCourses:
+			//for each day in the week
+			for(int day=0; day<5; day++){
+				//ignore days that event doesn't occure in
+				if(thisEvent[day][0].hour==25){
+					continue;
+				}
+				//if event finishes before the first course begins, increment score
+				if(thisEvent[day][1].isEarlierthan(schedule[day][0].startTime)){
+					events+=1.0/numPerWeek;
+					score+=preference.externalCommitments*1.0/numEvents/numPerWeek;
+					continue;
+				}
+				//for each break between courses
+				for(int course=0; course<schedule[day].length-1; course++){
+					//if event end time is earlier than the start of the next course
+					if(thisEvent[day][1].isEarlierthan(schedule[day][course+1].startTime)){
+						//and if event starts after a course is finished
+						if(schedule[day][course].endTime.isEarlierthan(thisEvent[day][0])){
+							//that means the event can fit between the free time, increment score
+							events+=1.0/numPerWeek;
+							score+=preference.externalCommitments*1.0/numEvents/numPerWeek;
+						}
+						//no longer need to check that day
+						continue fitEventBetweenCourses;
+					}
+				}
+				//if event starts after the end of the last course, also increment score
+				if(schedule[day][schedule[day].length-1].endTime.isEarlierthan(thisEvent[day][0])){
+					events+=1.0/numPerWeek;
+					score+=preference.externalCommitments*1.0/numEvents/numPerWeek;
+				}
+			}
+		}
 	}
 
-	void loadSchedule(final Course database[]){
+	private void loadSchedule(final Course database[]){
 		//load times into schedule
 		for (int course = 0; course < COURSES; course++){//for every course
 			for (int day = 0; day < 5; day++){//for each day of the week
@@ -127,7 +174,7 @@ public class Plan
 		}
 	}
 
-	void sortSchedule(final Course database[]){
+	private void sortSchedule(final Course database[]){
 		//a bubble sort classes based on start time, too lazy to change it
 		Schedule temp;             // holding variable
 		for (int day = 0; day < 5; day++){
@@ -142,5 +189,10 @@ public class Plan
 				}
 			}
 		}
+	}
+	
+	public String toString(){
+		return "start: " + start + ",end: " + end + ",noon: " + noon + ",instructor: " + instructor + ",dispersion"
+				+ dispersion + ",events: " + events;
 	}
 }

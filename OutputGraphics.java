@@ -98,6 +98,12 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 			g.setColor(Color.gray);
 			g.drawLine(CHARTWIDTH+30, lines*30+10, CHARTWIDTH+INFOWIDTH, lines*30+10);
 		}
+		
+		//external commitments
+		for(int i=0; i<preference.events.size(); i++){
+			drawSection(g, -1, preference.events.get(i));
+		}
+
 		g.drawLine(CHARTWIDTH+190, 10, CHARTWIDTH+190, CHARTHEIGHT);
 		g.drawLine(CHARTWIDTH+340, 10, CHARTWIDTH+340, CHARTHEIGHT);
 	}//paint
@@ -132,7 +138,7 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 	/**
 	 * given a section variable, draw its class time on the chart
 	 * @param g graphics variable
-	 * @param course index in course array
+	 * @param course index in course array. -1 for a preference event instead of course section
 	 * @param section the section variable to draw
 	 */
 	private void drawSection(Graphics g, int course, Section section){
@@ -140,24 +146,45 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 		int rectX, rectY, rectHeight;
 		for (int day =0; day<5; day++) {
 			if(section.schedule[day][0].hour!=25){
+				//the box
 				startTime = section.schedule[day][0];
 				endTime = section.schedule[day][1];
 				rectX = OFFSHIFTX+day*RECTWIDTH;
 				rectY = (int)(OFFSHIFTY+RECTHEIGHT*(startTime.hour-8+startTime.minute/60.0));
 				rectHeight = (int)(RECTHEIGHT*(endTime.hour-startTime.hour+(endTime.minute-startTime.minute)/60.0));
-				g.setColor(Color.yellow);
+				if(course>=0){
+					g.setColor(Color.yellow);
+				}else{
+					g.setColor( new Color(0,0,255,80));
+				}
 				g.fillRect(rectX, rectY, RECTWIDTH, rectHeight);
 				g.setColor(Color.black);
 				g.drawRect(rectX, rectY, RECTWIDTH, rectHeight);
-				String words = String.format("%d:%02d", startTime.hour, startTime.minute);
-				int stringWidth = g.getFontMetrics().stringWidth(words);
-				g.drawString(words, rectX+(RECTWIDTH-stringWidth)/2, rectY+14);
-				words = database[course].subject+" "+database[course].courseNumber;
-				stringWidth = g.getFontMetrics().stringWidth(words);
-				g.drawString(words, rectX+(RECTWIDTH-stringWidth)/2, rectY+rectHeight/2+6);
-				words = String.format("%d:%02d", endTime.hour, endTime.minute);
-				stringWidth = g.getFontMetrics().stringWidth(words);
-				g.drawString(words, rectX+(RECTWIDTH-stringWidth)/2, rectY+rectHeight-2);
+				
+				//info inside the box
+				if(course>=0){
+					//start time
+					String words = String.format("%d:%02d", startTime.hour, startTime.minute);
+					int stringWidth = g.getFontMetrics().stringWidth(words);
+					g.drawString(words, rectX+(RECTWIDTH-stringWidth)/2, rectY+14);
+					//course name
+					words = database[course].subject+" "+database[course].courseNumber;
+					stringWidth = g.getFontMetrics().stringWidth(words);
+					g.drawString(words, rectX+(RECTWIDTH-stringWidth)/2, rectY+rectHeight/2+6);
+					//end time
+					words = String.format("%d:%02d", endTime.hour, endTime.minute);
+					stringWidth = g.getFontMetrics().stringWidth(words);
+					g.drawString(words, rectX+(RECTWIDTH-stringWidth)/2, rectY+rectHeight-2);
+				} else{
+					g.setColor(Color.WHITE);
+					String words = section.sectionNumber;
+					int stringWidth = g.getFontMetrics().stringWidth(words);
+					while(stringWidth>RECTWIDTH){
+						words = words.substring(0, words.length()-3) + "..";
+						stringWidth = g.getFontMetrics().stringWidth(words);
+					}
+					g.drawString(words, rectX+(RECTWIDTH-stringWidth)/2, rectY+rectHeight/2+6);
+				}
 			}
 		}
 	}
@@ -193,6 +220,10 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 		}
 
 		repaint();
+		
+		if(Schedule_Planer.testing){
+			System.out.printf("plan: %d,%s\n", currentPlan, plan[currentPlan].toString());
+		}
 
 		return true;
 	}//dispatchKeyEvent

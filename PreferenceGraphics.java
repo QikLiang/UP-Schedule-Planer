@@ -383,7 +383,7 @@ public class PreferenceGraphics extends JPanel{
 			}
 		} );
 
-		//next
+		//finish
 		JButton finish = new JButton("Finish");
 		finish.addActionListener( new ActionListener(){
 			public void actionPerformed(ActionEvent e){
@@ -450,6 +450,8 @@ public class PreferenceGraphics extends JPanel{
 		//clustering
 		preference.clustering = cluster.getValue();
 		
+		//external commitments
+		preference.externalCommitments = externalCommitments.getValue();
 		for(int i=0; i<events.size(); i++){
 			preference.events.add( events.get(i).toSection() );
 		}
