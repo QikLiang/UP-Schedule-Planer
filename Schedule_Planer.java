@@ -50,11 +50,11 @@ public class Schedule_Planer {
 
 	public static void main(String[] args) {
 		Schedule_Planer planer = new Schedule_Planer();
+		planer.displayGUI();
 	}
 
 	/*
-	 * framework code. calls other methods for asking input, performing
-	 * calculations, and output results
+	 * framework code. instantiate attributes
 	 */
 	private Schedule_Planer(){
 		// declaration and instantiation
@@ -77,7 +77,7 @@ public class Schedule_Planer {
 		contentPaneLayout = new CardLayout();
 		contentpane.setLayout(contentPaneLayout);
 
-		//start with text display panel
+		//add text display panel
 		messagePane = new JPanel();
 		messagePane.setLayout(new BoxLayout(messagePane, BoxLayout.Y_AXIS));
 		messageBox = new JTextArea();
@@ -86,7 +86,12 @@ public class Schedule_Planer {
 		((DefaultCaret) messageBox.getCaret()).setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 		messagePane.add(messageBox);
 
-		//display GUI
+	}
+	
+	/**
+	 * set gui JFrame to visible
+	 */
+	private void displayGUI(){
 		contentpane.add(messagePane, "Message");
 		window.add(contentpane);
 		window.setVisible(true);
