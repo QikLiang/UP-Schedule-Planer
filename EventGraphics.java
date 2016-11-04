@@ -76,7 +76,7 @@ public class EventGraphics {
 	 * convert an event's information to a section with the section number set to the name of the event
 	 * @return
 	 */
-	public Section toSection(){
+	public Section toSection() throws NumberFormatException {
 		Section section = new Section();
 		
 		//name

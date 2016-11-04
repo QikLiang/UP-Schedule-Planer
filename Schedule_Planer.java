@@ -95,7 +95,7 @@ public class Schedule_Planer {
 		contentpane.add(messagePane, "Message");
 		window.add(contentpane);
 		window.setVisible(true);
-		window.setResizable(false);
+		//window.setResizable(false);
 
 		messageBox.append("Schedule planer ver 2.1 for University of Portland, by Qi Liang\n");
 

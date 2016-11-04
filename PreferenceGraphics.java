@@ -12,6 +12,7 @@ import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSlider;
@@ -301,7 +302,7 @@ public class PreferenceGraphics extends JPanel{
 				panel.loadPreference();
 				mainProgram.createPlans();
 				mainProgram.startOutputGraphics();
-				*/				
+				 */				
 				CardLayout cl = (CardLayout) getLayout();
 				cl.next(temp);
 			}
@@ -354,7 +355,7 @@ public class PreferenceGraphics extends JPanel{
 
 		//buttons
 		PreferenceGraphics panel = this;//for changing panel inside button
-		
+
 		//add
 		JButton addEvent = new JButton("Add event");
 		addEvent.addActionListener( new ActionListener(){
@@ -387,9 +388,10 @@ public class PreferenceGraphics extends JPanel{
 		JButton finish = new JButton("Finish");
 		finish.addActionListener( new ActionListener(){
 			public void actionPerformed(ActionEvent e){
-				panel.loadPreference();
-				mainProgram.createPlans();
-				mainProgram.startOutputGraphics();
+				if(panel.loadPreference()){
+					mainProgram.createPlans();
+					mainProgram.startOutputGraphics();
+				}
 			}
 		} );
 
@@ -406,35 +408,42 @@ public class PreferenceGraphics extends JPanel{
 	/**
 	 * put info from gui into preference variable
 	 */
-	private void loadPreference(){
-		//start
-		preference.start = start.getValue();
-		preference.startTime.hour = Integer.parseInt(startHour.getText());
-		preference.startTime.minute = Integer.parseInt(startMinute.getText());
-		if(startApm.getSelectedIndex()==1){
-			preference.startTime.increment12Hours();
-		}
+	private boolean loadPreference(){
+		//page 1
+		try{
+			//start
+			preference.start = start.getValue();
+			preference.startTime.hour = Integer.parseInt(startHour.getText());
+			preference.startTime.minute = Integer.parseInt(startMinute.getText());
+			if(startApm.getSelectedIndex()==1){
+				preference.startTime.increment12Hours();
+			}
 
-		//end
-		preference.end = end.getValue();
-		preference.endTime.hour = Integer.parseInt(endHour.getText());
-		preference.endTime.minute = Integer.parseInt(endMinute.getText());
-		if(endApm.getSelectedIndex()==1){
-			preference.endTime.increment12Hours();
-		}
+			//end
+			preference.end = end.getValue();
+			preference.endTime.hour = Integer.parseInt(endHour.getText());
+			preference.endTime.minute = Integer.parseInt(endMinute.getText());
+			if(endApm.getSelectedIndex()==1){
+				preference.endTime.increment12Hours();
+			}
 
-		//noon
-		preference.noon = noon.getValue();
-		preference.noonBegin.hour = Integer.parseInt(noonStartHour.getText());
-		preference.noonBegin.minute = Integer.parseInt(noonStartMinute.getText());
-		preference.noonEnd.hour = Integer.parseInt(noonEndHour.getText());
-		preference.noonEnd.minute = Integer.parseInt(noonEndMinute.getText());
-		preference.duration = Integer.parseInt(noonLength.getText());
-		if(noonStartApm.getSelectedIndex()==1){
-			preference.noonBegin.increment12Hours();
-		}
-		if(noonEndApm.getSelectedIndex()==1){
-			preference.noonEnd.increment12Hours();
+			//noon
+			preference.noon = noon.getValue();
+			preference.noonBegin.hour = Integer.parseInt(noonStartHour.getText());
+			preference.noonBegin.minute = Integer.parseInt(noonStartMinute.getText());
+			preference.noonEnd.hour = Integer.parseInt(noonEndHour.getText());
+			preference.noonEnd.minute = Integer.parseInt(noonEndMinute.getText());
+			preference.duration = Integer.parseInt(noonLength.getText());
+			if(noonStartApm.getSelectedIndex()==1){
+				preference.noonBegin.increment12Hours();
+			}
+			if(noonEndApm.getSelectedIndex()==1){
+				preference.noonEnd.increment12Hours();
+			}
+		} catch(NumberFormatException e){
+			JOptionPane.showMessageDialog(null, "Error: A text box on page 1 expects and number but got something else.");
+			((CardLayout) getLayout()).show(this, "page1");
+			return false;
 		}
 
 		//instructors
@@ -449,11 +458,18 @@ public class PreferenceGraphics extends JPanel{
 
 		//clustering
 		preference.clustering = cluster.getValue();
-		
-		//external commitments
-		preference.externalCommitments = externalCommitments.getValue();
-		for(int i=0; i<events.size(); i++){
-			preference.events.add( events.get(i).toSection() );
+
+		//page 3
+		try{
+			//external commitments
+			preference.externalCommitments = externalCommitments.getValue();
+			for(int i=0; i<events.size(); i++){
+				preference.events.add( events.get(i).toSection() );
+			}
+		}catch(NumberFormatException e){
+			JOptionPane.showMessageDialog(null, "Error: A text box on page 3 expects and number but got something else.");
+			return false;
 		}
+		return true;
 	}
 }
