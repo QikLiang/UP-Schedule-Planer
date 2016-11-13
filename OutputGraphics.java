@@ -1,5 +1,13 @@
-import java.awt.*;
-import java.awt.event.*;
+
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
+import java.awt.Panel;
+import java.awt.event.KeyEvent;
+
+import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
 /**
@@ -227,4 +235,9 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 
 		return true;
 	}//dispatchKeyEvent
+	
+	public static JPanel createGraphicsJPanel(){
+		JPanel panel = new JPanel();
+		return panel;
+	}
 }
