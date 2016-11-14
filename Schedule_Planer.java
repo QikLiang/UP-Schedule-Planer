@@ -97,7 +97,7 @@ public class Schedule_Planer {
 		window.setVisible(true);
 		//window.setResizable(false);
 
-		messageBox.append("Schedule planer ver 2.1 for University of Portland, by Qi Liang\n");
+		messageBox.append("Schedule planer ver 2.2.1 for University of Portland, by Qi Liang\n");
 
 		// prompt user for input and load data into database and preference object
 		setupDatabase();
@@ -398,8 +398,9 @@ public class Schedule_Planer {
 	 * create and display output graphics using database and preference info
 	 */
 	public void startOutputGraphics(){
-		OutputGraphics og = new OutputGraphics(database, plan, plans, preference);
-		contentpane.add(og, "Output");
+		JPanel output = OutputGraphics.createGraphicsJPanel(database, plan, plans, preference);
+		//OutputGraphics og = new OutputGraphics(database, plan, plans, preference);
+		contentpane.add(output, "Output");
 		window.setSize(OutputGraphics.CHARTWIDTH+OutputGraphics.INFOWIDTH, OutputGraphics.CHARTHEIGHT+100);
 		window.setLocationRelativeTo(null);
 		((CardLayout) contentpane.getLayout()).show(contentpane, "Output");

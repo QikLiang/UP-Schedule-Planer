@@ -1,19 +1,26 @@
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Panel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.Serializable;
 
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
 /**
  * this class takes care of ending graphics
  */
-public class OutputGraphics extends Panel implements KeyEventDispatcher
+public class OutputGraphics extends Panel implements KeyEventDispatcher, Serializable
 {
 	final Course[] database;
 	final Plan[] plan;
@@ -27,6 +34,9 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 	public static final int CHARTHEIGHT = OFFSHIFTY+RECTHEIGHT*14;
 	public static final int INFOWIDTH = 520;
 	private final Preference preference;
+	JPanel menu;
+	JLabel planText;
+	JLabel scoreText;
 
 	public OutputGraphics (Course[] initDatabase, Plan[] initPlan, int initPlans, Preference initPreference){
 		database = initDatabase;
@@ -75,13 +85,6 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 				CHARTWIDTH, (int)(OFFSHIFTY+RECTHEIGHT*(preference.startTime.hour-8+preference.startTime.minute/60.0)));
 		g.drawLine(50, (int)(OFFSHIFTY+RECTHEIGHT*(preference.endTime.hour-8+preference.endTime.minute/60.0)),
 				CHARTWIDTH, (int)(OFFSHIFTY+RECTHEIGHT*(preference.endTime.hour-8+preference.endTime.minute/60.0)));
-
-		//info below the chart
-		g.setColor(Color.black);
-		g.drawString("Current Plan: "+(currentPlan+1)+"/"+plans
-				+String.format(" Score for current plan: %.1f", plan[currentPlan].score), 10, CHARTHEIGHT+20);
-		g.drawString("Use the arrow keys <- and -> to move between plans.",
-				10, CHARTHEIGHT+40);
 
 		//items in the chart itself
 		Section section;
@@ -195,6 +198,9 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 				}
 			}
 		}
+		planText.setText(" "+(currentPlan+1)+"/"+plans+" ");
+		scoreText.setText(String.format(" Score: %.1f", plan[currentPlan].score));
+		menu.repaint();
 	}
 
 	/**
@@ -236,8 +242,45 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 		return true;
 	}//dispatchKeyEvent
 	
-	public static JPanel createGraphicsJPanel(){
+	public static JPanel createGraphicsJPanel(Course[] initDatabase, Plan[] initPlan, int initPlans, Preference initPreference){
 		JPanel panel = new JPanel();
+		panel.setLayout( new BoxLayout(panel, BoxLayout.Y_AXIS));
+		JPanel menu = new JPanel();
+		menu.setMaximumSize(new Dimension(800, 20));
+		OutputGraphics graphics = new OutputGraphics(initDatabase, initPlan, initPlans, initPreference, menu);
+		panel.add(graphics);
+		panel.add(menu);
 		return panel;
+	}
+	
+	private OutputGraphics (Course[] initDatabase, Plan[] initPlan, int initPlans, Preference initPreference, JPanel menu){
+		this(initDatabase, initPlan, initPlans, initPreference);
+		this.menu = menu;
+		JButton left = new JButton("<-");
+		left.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(currentPlan>0){
+					currentPlan--;
+				}
+				repaint();
+			}
+		});
+		menu.add(left);
+		planText = new JLabel();
+		scoreText = new JLabel();
+		menu.add(planText);
+		JButton right= new JButton("->");
+		right.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(currentPlan+1<plans){
+					currentPlan++;
+				}
+				repaint();
+			}
+		});
+		menu.add(right);
+		menu.add(scoreText);
 	}
 }
