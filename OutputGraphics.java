@@ -9,10 +9,16 @@ import java.awt.Panel;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
@@ -22,10 +28,16 @@ import javax.swing.JPanel;
  */
 public class OutputGraphics extends Panel implements KeyEventDispatcher, Serializable
 {
-	final Course[] database;
-	final Plan[] plan;
+	private final Course[] database;
+	private final Preference preference;
+	private final Plan[] plan;
 	private int currentPlan = 0;
 	private final int plans;
+
+	public final JPanel menu;
+	private JLabel planText;
+	private JLabel scoreText;
+
 	public static final int RECTWIDTH = 100;
 	public static final int RECTHEIGHT = 50;
 	public static final int OFFSHIFTX = 75;
@@ -33,20 +45,6 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher, Seriali
 	public static final int CHARTWIDTH = OFFSHIFTX+5*RECTWIDTH;
 	public static final int CHARTHEIGHT = OFFSHIFTY+RECTHEIGHT*14;
 	public static final int INFOWIDTH = 520;
-	private final Preference preference;
-	JPanel menu;
-	JLabel planText;
-	JLabel scoreText;
-
-	public OutputGraphics (Course[] initDatabase, Plan[] initPlan, int initPlans, Preference initPreference){
-		database = initDatabase;
-		plan = initPlan;
-		plans = initPlans;
-		preference = initPreference;
-
-		//Ask Java to tell me about what keys the user presses on the keyboard.
-		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(this);
-	}
 
 	public void paint(Graphics g)
 	{
@@ -254,8 +252,17 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher, Seriali
 	}
 	
 	private OutputGraphics (Course[] initDatabase, Plan[] initPlan, int initPlans, Preference initPreference, JPanel menu){
-		this(initDatabase, initPlan, initPlans, initPreference);
+		database = initDatabase;
+		plan = initPlan;
+		plans = initPlans;
+		preference = initPreference;
+
+		//Ask Java to tell me about what keys the user presses on the keyboard.
+		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(this);
 		this.menu = menu;
+		menu.setLayout( new BoxLayout(menu, BoxLayout.X_AXIS));
+
+		//create buttons for switching plans
 		JButton left = new JButton("<-");
 		left.addActionListener(new ActionListener(){
 			@Override
@@ -266,10 +273,6 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher, Seriali
 				repaint();
 			}
 		});
-		menu.add(left);
-		planText = new JLabel();
-		scoreText = new JLabel();
-		menu.add(planText);
 		JButton right= new JButton("->");
 		right.addActionListener(new ActionListener(){
 			@Override
@@ -280,7 +283,42 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher, Seriali
 				repaint();
 			}
 		});
+		JButton save = new JButton("Save Schedules");
+		Panel temp = this;//reference panel inside action listener
+		save.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser fc = new JFileChooser();
+				int val = fc.showSaveDialog(temp);
+				if(val == JFileChooser.APPROVE_OPTION){
+					ObjectOutputStream oos;
+					try {//open file
+						oos = new ObjectOutputStream(new FileOutputStream(fc.getSelectedFile()));
+					} catch (IOException e) {
+						//stop if fail to open file
+						return;
+					}
+					try{//write to file
+						oos.writeObject(database);
+						oos.writeObject(plan);
+						oos.writeInt(plans);
+						oos.writeObject(preference);
+					}catch (Exception e){ }
+					try {//close file
+						oos.close();
+					} catch (IOException e) { }
+				}
+			}
+		});
+
+		//add elements to menu
+		planText = new JLabel();
+		scoreText = new JLabel();
+		menu.add(left);
+		menu.add(planText);
 		menu.add(right);
 		menu.add(scoreText);
+		menu.add(Box.createHorizontalGlue());
+		menu.add(save);
 	}
 }
