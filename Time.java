@@ -1,8 +1,9 @@
+import java.io.Serializable;
 
 /**
  * store time as an object
  */
-public class Time
+public class Time implements Serializable
 {
 	int hour;
 	int minute;

@@ -6,8 +6,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Scanner;
 
+import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -97,10 +99,68 @@ public class Schedule_Planer {
 		window.setVisible(true);
 		//window.setResizable(false);
 
-		messageBox.append("Schedule planer ver 2.1 for University of Portland, by Qi Liang\n");
+		messageBox.append("Schedule planer ver 2.2.1 for University of Portland, by Qi Liang\n");
 
+		//create buttons for options
+		Schedule_Planer temp = this;
+		JPanel div = new JPanel();
+		JButton open = new JButton("Open Saved Schedule");
+		open.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				temp.readSchedule();
+			}
+		});
+		JButton start = new JButton("Start");
+		start.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				temp.setupDatabase(div);
+			}
+		});
+		
+		//add buttons to bottom of window
+		div.setLayout( new BoxLayout(div, BoxLayout.X_AXIS));
+		div.add(open);
+		div.add(Box.createHorizontalGlue());
+		div.add(start);
+		messagePane.add(div);
+		/*
 		// prompt user for input and load data into database and preference object
 		setupDatabase();
+		*/
+	}
+	
+	/**
+	 * read from a file and set up output graphics
+	 */
+	public void readSchedule(){
+		boolean readSuccessful = true;
+		JFileChooser fc = new JFileChooser();
+		int val = fc.showOpenDialog(window);
+		if (val == JFileChooser.APPROVE_OPTION){
+			ObjectInputStream input;
+			try {//open file
+				input = new ObjectInputStream(new FileInputStream(fc.getSelectedFile()));
+			} catch (IOException e) {
+				//stop if fail to open file
+				return;
+			}
+			try{//write to file
+				database = (Course[]) input.readObject();
+				plan = (Plan[]) input.readObject();
+				plans = input.readInt();
+				preference = (Preference) input.readObject();
+			}catch (Exception e){ 
+				readSuccessful = false;
+			}
+			try {//close file
+				input.close();
+			} catch (IOException e) { }
+			if(readSuccessful){
+				startOutputGraphics();
+			}
+		}
 	}
 
 	/**
@@ -108,7 +168,7 @@ public class Schedule_Planer {
 	 *
 	 * @return the number of courses in the database
 	 */
-	void setupDatabase() {
+	public void setupDatabase(JPanel div) {
 		File file = new File(DATABASE);
 		Scanner input = null;
 		PrintWriter write = null;
@@ -186,10 +246,11 @@ public class Schedule_Planer {
 				contentPaneLayout.show(contentpane, "Preference");
 			}
 		});
-		JPanel div = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
+		div.removeAll();
+		div.add(Box.createHorizontalGlue());
 		div.add(next);
-		messagePane.add(div);
 		messagePane.revalidate();
+		messagePane.repaint();
 	}
 	
 	/**
@@ -398,8 +459,8 @@ public class Schedule_Planer {
 	 * create and display output graphics using database and preference info
 	 */
 	public void startOutputGraphics(){
-		OutputGraphics og = new OutputGraphics(database, plan, plans, preference);
-		contentpane.add(og, "Output");
+		JPanel output = OutputGraphics.createGraphicsJPanel(database, plan, plans, preference);
+		contentpane.add(output, "Output");
 		window.setSize(OutputGraphics.CHARTWIDTH+OutputGraphics.INFOWIDTH, OutputGraphics.CHARTHEIGHT+100);
 		window.setLocationRelativeTo(null);
 		((CardLayout) contentpane.getLayout()).show(contentpane, "Output");

@@ -1,8 +1,9 @@
+import java.io.Serializable;
 
 /**
  * 
  */
-public class Course
+public class Course implements Serializable
 {
 	String subject;
 	String courseNumber;

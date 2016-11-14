@@ -1,16 +1,43 @@
-import java.awt.*;
-import java.awt.event.*;
+
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
+import java.awt.Panel;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.ObjectOutputStream;
+import java.io.Serializable;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 @SuppressWarnings("serial")
 /**
  * this class takes care of ending graphics
  */
-public class OutputGraphics extends Panel implements KeyEventDispatcher
+public class OutputGraphics extends Panel implements KeyEventDispatcher, Serializable
 {
-	final Course[] database;
-	final Plan[] plan;
+	private final Course[] database;
+	private final Preference preference;
+	private final Plan[] plan;
 	private int currentPlan = 0;
 	private final int plans;
+
+	public final JPanel menu;
+	private JLabel planText;
+	private JLabel scoreText;
+
 	public static final int RECTWIDTH = 100;
 	public static final int RECTHEIGHT = 50;
 	public static final int OFFSHIFTX = 75;
@@ -18,17 +45,6 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 	public static final int CHARTWIDTH = OFFSHIFTX+5*RECTWIDTH;
 	public static final int CHARTHEIGHT = OFFSHIFTY+RECTHEIGHT*14;
 	public static final int INFOWIDTH = 520;
-	private final Preference preference;
-
-	public OutputGraphics (Course[] initDatabase, Plan[] initPlan, int initPlans, Preference initPreference){
-		database = initDatabase;
-		plan = initPlan;
-		plans = initPlans;
-		preference = initPreference;
-
-		//Ask Java to tell me about what keys the user presses on the keyboard.
-		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(this);
-	}
 
 	public void paint(Graphics g)
 	{
@@ -67,13 +83,6 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 				CHARTWIDTH, (int)(OFFSHIFTY+RECTHEIGHT*(preference.startTime.hour-8+preference.startTime.minute/60.0)));
 		g.drawLine(50, (int)(OFFSHIFTY+RECTHEIGHT*(preference.endTime.hour-8+preference.endTime.minute/60.0)),
 				CHARTWIDTH, (int)(OFFSHIFTY+RECTHEIGHT*(preference.endTime.hour-8+preference.endTime.minute/60.0)));
-
-		//info below the chart
-		g.setColor(Color.black);
-		g.drawString("Current Plan: "+(currentPlan+1)+"/"+plans
-				+String.format(" Score for current plan: %.1f", plan[currentPlan].score), 10, CHARTHEIGHT+20);
-		g.drawString("Use the arrow keys <- and -> to move between plans.",
-				10, CHARTHEIGHT+40);
 
 		//items in the chart itself
 		Section section;
@@ -187,6 +196,9 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 				}
 			}
 		}
+		planText.setText(" "+(currentPlan+1)+"/"+plans+" ");
+		scoreText.setText(String.format(" Score: %.1f", plan[currentPlan].score));
+		menu.repaint();
 	}
 
 	/**
@@ -227,4 +239,86 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 
 		return true;
 	}//dispatchKeyEvent
+	
+	public static JPanel createGraphicsJPanel(Course[] initDatabase, Plan[] initPlan, int initPlans, Preference initPreference){
+		JPanel panel = new JPanel();
+		panel.setLayout( new BoxLayout(panel, BoxLayout.Y_AXIS));
+		JPanel menu = new JPanel();
+		menu.setMaximumSize(new Dimension(800, 20));
+		OutputGraphics graphics = new OutputGraphics(initDatabase, initPlan, initPlans, initPreference, menu);
+		panel.add(graphics);
+		panel.add(menu);
+		return panel;
+	}
+	
+	private OutputGraphics (Course[] initDatabase, Plan[] initPlan, int initPlans, Preference initPreference, JPanel menu){
+		database = initDatabase;
+		plan = initPlan;
+		plans = initPlans;
+		preference = initPreference;
+
+		//Ask Java to tell me about what keys the user presses on the keyboard.
+		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(this);
+		this.menu = menu;
+		menu.setLayout( new BoxLayout(menu, BoxLayout.X_AXIS));
+
+		//create buttons for switching plans
+		JButton left = new JButton("<-");
+		left.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(currentPlan>0){
+					currentPlan--;
+				}
+				repaint();
+			}
+		});
+		JButton right= new JButton("->");
+		right.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				if(currentPlan+1<plans){
+					currentPlan++;
+				}
+				repaint();
+			}
+		});
+		JButton save = new JButton("Save Schedules");
+		Panel temp = this;//reference panel inside action listener
+		save.addActionListener(new ActionListener(){
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				JFileChooser fc = new JFileChooser();
+				int val = fc.showSaveDialog(temp);
+				if(val == JFileChooser.APPROVE_OPTION){
+					ObjectOutputStream oos;
+					try {//open file
+						oos = new ObjectOutputStream(new FileOutputStream(fc.getSelectedFile()));
+					} catch (IOException e) {
+						//stop if fail to open file
+						return;
+					}
+					try{//write to file
+						oos.writeObject(database);
+						oos.writeObject(plan);
+						oos.writeInt(plans);
+						oos.writeObject(preference);
+					}catch (Exception e){ }
+					try {//close file
+						oos.close();
+					} catch (IOException e) { }
+				}
+			}
+		});
+
+		//add elements to menu
+		planText = new JLabel();
+		scoreText = new JLabel();
+		menu.add(left);
+		menu.add(planText);
+		menu.add(right);
+		menu.add(scoreText);
+		menu.add(Box.createHorizontalGlue());
+		menu.add(save);
+	}
 }
