@@ -1,3 +1,4 @@
+import java.io.Serializable;
 
 /**
  * This is a collection of Schedule objects that combine to create a possible semester plan. It will eventually be
@@ -6,7 +7,7 @@
  * @author Qi Liang
  * @version 
  */
-public class Plan
+public class Plan implements Serializable
 {
 	int[] path;
 	float score = 0;

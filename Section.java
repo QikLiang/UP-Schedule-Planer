@@ -1,8 +1,9 @@
+import java.io.Serializable;
 
 /**
  * The info of one section in a course
  */
-public class Section
+public class Section implements Serializable
 {
 	int crn = 0;
 	String sectionNumber;
