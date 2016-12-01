@@ -32,7 +32,7 @@ public class Schedule_Planer {
 	//program can handle
 	Scanner keyboard = new Scanner(System.in);
 
-	public static boolean testing = false;
+	public static boolean testing = true;
 	//address of the database file
 	final String DATABASE = "database.txt";
 
@@ -312,7 +312,7 @@ public class Schedule_Planer {
 				}
 				
 				// finish inputing info
-				thisCourse.section[0].instructor = line[19];
+				thisCourse.section[0].instructor = line[19].replaceAll("\\(.\\)", "").trim();
 				thisCourse.section[0].location = line[21].trim();
 
 				// match course with database
@@ -461,7 +461,8 @@ public class Schedule_Planer {
 	public void startOutputGraphics(){
 		JPanel output = OutputGraphics.createGraphicsJPanel(database, plan, plans, preference);
 		contentpane.add(output, "Output");
-		window.setSize(OutputGraphics.CHARTWIDTH+OutputGraphics.INFOWIDTH, OutputGraphics.CHARTHEIGHT+100);
+		window.setSize(OutputGraphics.CHARTWIDTH+OutputGraphics.INFOWIDTH+OutputGraphics.OFFSHIFTX, 
+				OutputGraphics.CHARTHEIGHT+OutputGraphics.OFFSHIFTY+10);
 		window.setLocationRelativeTo(null);
 		((CardLayout) contentpane.getLayout()).show(contentpane, "Output");
 	}
