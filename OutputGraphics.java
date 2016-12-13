@@ -117,6 +117,8 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher, Seriali
 		g.drawLine(CHARTWIDTH+340, 10, CHARTWIDTH+340, CHARTHEIGHT);
 	}//paint
 
+	/* PAINT HELPER METHODS */
+
 	/**
 	 * helper method that line-wraps a string to not exceed 16 characters per line
 	 * @param g graphics variable for calling drawString
@@ -240,6 +242,9 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher, Seriali
 		return true;
 	}//dispatchKeyEvent
 	
+	/**
+	 * makes a new OutputGraphics object and wraps it in another JPanel along with a menu at the bottom
+	 */
 	public static JPanel createGraphicsJPanel(Course[] initDatabase, Plan[] initPlan, int initPlans, Preference initPreference){
 		JPanel panel = new JPanel();
 		panel.setLayout( new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -251,6 +256,9 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher, Seriali
 		return panel;
 	}
 	
+	/**
+	 * constructor only called by createGraphicsJPanel
+	 */
 	private OutputGraphics (Course[] initDatabase, Plan[] initPlan, int initPlans, Preference initPreference, JPanel menu){
 		database = initDatabase;
 		plan = initPlan;
@@ -283,6 +291,7 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher, Seriali
 				repaint();
 			}
 		});
+		//button for saving schedules
 		JButton save = new JButton("Save Schedules");
 		Panel temp = this;//reference panel inside action listener
 		save.addActionListener(new ActionListener(){
