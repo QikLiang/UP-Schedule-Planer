@@ -38,13 +38,13 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher, Seriali
 	private JLabel planText;
 	private JLabel scoreText;
 
-	public static final int RECTWIDTH = 100;
-	public static final int RECTHEIGHT = 50;
-	public static final int OFFSHIFTX = 75;
-	public static final int OFFSHIFTY = 50;
-	public static final int CHARTWIDTH = OFFSHIFTX+5*RECTWIDTH;
-	public static final int CHARTHEIGHT = OFFSHIFTY+RECTHEIGHT*14;
-	public static final int INFOWIDTH = 520;
+	public static int RECTWIDTH = 100;
+	public static int RECTHEIGHT = 50;
+	public static int OFFSHIFTX = 75;
+	public static int OFFSHIFTY = 50;
+	public static int CHARTWIDTH = OFFSHIFTX+5*RECTWIDTH;
+	public static int CHARTHEIGHT = OFFSHIFTY+RECTHEIGHT*14;
+	public static int INFOWIDTH = 420;
 
 	public void paint(Graphics g)
 	{
