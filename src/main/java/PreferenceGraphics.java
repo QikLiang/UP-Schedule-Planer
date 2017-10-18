@@ -61,6 +61,7 @@ public class PreferenceGraphics extends JPanel{
 		courses = mainProgram.courses;
 		loadInstructors( database, courses );
 		setLayout( new CardLayout() );
+		add( menu() , "menu");
 		add( page1(), "page1" );
 		add( page2(), "page2" );
 		add( page3(), "page3" );
@@ -82,6 +83,62 @@ public class PreferenceGraphics extends JPanel{
 				}
 			}
 		}
+	}
+
+	private JPanel menu(){
+		JPanel menu = new JPanel();
+		menu.setLayout( new BoxLayout(menu, BoxLayout.Y_AXIS));
+
+		menu.add(Box.createVerticalGlue());
+
+		JPanel row1 = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		row1.add(new JLabel("Preferences"));
+		menu.add(row1);
+
+		JButton time = new JButton("Time Preferences");
+		time.addActionListener(event -> {
+			CardLayout layout = (CardLayout) getLayout();
+			layout.show(this, "page1");
+		});
+		JPanel row2 = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		row2.add(time);
+		menu.add(row2);
+		menu.add(Box.createVerticalGlue());
+
+		JButton instructors = new JButton("Instructor Preferences");
+		instructors.addActionListener(event -> {
+			CardLayout layout = (CardLayout) getLayout();
+			layout.show(this, "page2");
+		});
+		JPanel row3 = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		row3.add(instructors);
+		menu.add(row3);
+		menu.add(Box.createVerticalGlue());
+
+		JButton events = new JButton("External Commitments");
+		events.addActionListener(event -> {
+			CardLayout layout = (CardLayout) getLayout();
+			layout.show(this, "page3");
+		});
+		JPanel row4 = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		row4.add(events);
+		menu.add(row4);
+		menu.add(Box.createVerticalGlue());
+
+		//finish
+		JButton finish = new JButton("Next");
+		finish.addActionListener( event -> {
+			if(this.loadPreference()){
+				mainProgram.createPlans();
+				mainProgram.startOutputGraphics();
+			}
+		} );
+		JPanel row5 = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		row5.add(finish);
+		menu.add(row5);
+		menu.add(Box.createVerticalGlue());
+
+		return menu;
 	}
 
 	/**
@@ -232,18 +289,15 @@ public class PreferenceGraphics extends JPanel{
 		//glue
 		page1.add(Box.createVerticalGlue());
 
-		//next
-		JButton next = new JButton("Next");
-		JPanel temp = this;
-		next.addActionListener( new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				CardLayout cl = (CardLayout) getLayout();
-				cl.next(temp);
-			}
+		//done
+		JButton done = new JButton("Done");
+		done.addActionListener( event -> {
+			CardLayout cl = (CardLayout) getLayout();
+			cl.show(this, "menu");
 		} );
 		JPanel div9 = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
 		div9.setMaximumSize(new Dimension(500,50));
-		div9.add(next);
+		div9.add(done);
 		page1.add(div9);
 
 		return page1;
@@ -282,37 +336,17 @@ public class PreferenceGraphics extends JPanel{
 		scrollBar.setPreferredSize( new Dimension(400, 300) );
 		page2.add(scrollBar);
 
-		PreferenceGraphics panel = this;//for changing panel inside button
-
-		//prev
-		JButton prev = new JButton("Previous");
-		prev.addActionListener( new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				CardLayout cl = (CardLayout) getLayout();
-				cl.show(panel, "page1");
-			}
-		} );
-
-		//next
-		JPanel temp = this;
-		JButton next = new JButton("Next");
-		next.addActionListener( new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				/*
-				panel.loadPreference();
-				mainProgram.createPlans();
-				mainProgram.startOutputGraphics();
-				 */				
-				CardLayout cl = (CardLayout) getLayout();
-				cl.next(temp);
-			}
+		//done
+		JButton done = new JButton("Done");
+		done.addActionListener( event -> {
+			CardLayout cl = (CardLayout) getLayout();
+			cl.show(this, "menu");
 		} );
 
 		//button div
 		JPanel div3 = new JPanel(new FlowLayout(FlowLayout.RIGHT, 0, 0));
 		div3.setMaximumSize(new Dimension(500,200));
-		div3.add(prev);
-		div3.add(next);
+		div3.add(done);
 		page2.add(div3);
 
 		return page2;
@@ -375,32 +409,18 @@ public class PreferenceGraphics extends JPanel{
 		} );
 
 
-		//prev
-		JButton prev = new JButton("Previous");
-		prev.addActionListener( new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				CardLayout cl = (CardLayout) getLayout();
-				cl.show(panel, "page2");
-			}
-		} );
-
-		//finish
-		JButton finish = new JButton("Finish");
-		finish.addActionListener( new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				if(panel.loadPreference()){
-					mainProgram.createPlans();
-					mainProgram.startOutputGraphics();
-				}
-			}
+		//done
+		JButton done = new JButton("Done");
+		done.addActionListener( event -> {
+			CardLayout cl = (CardLayout) getLayout();
+			cl.show(this, "menu");
 		} );
 
 		//button div
 		Box buttonDiv = Box.createHorizontalBox();
 		buttonDiv.add(addEvent);
 		buttonDiv.add(Box.createHorizontalGlue());
-		buttonDiv.add(prev);
-		buttonDiv.add(finish);
+		buttonDiv.add(done);
 		page3.add(buttonDiv);
 		return page3;
 	}
