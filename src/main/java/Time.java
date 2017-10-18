@@ -29,7 +29,12 @@ public class Time implements Serializable
 	 * @param endTime the variable that will hold the ending time
 	 */
 	public static void parseTime(String string, Time startTime, Time endTime){
+		if(string.equals("TBA")){
+
+		}
 		String[] times = string.split("-");//split into beginning and end time
+		times[0] = times[0].trim();
+		times[1] = times[1].trim();
 		String startApm = times[0].split(" ")[1];//am or pm
 		String endApm = times[1].split(" ")[1];//am or pm
 		times[0] = times[0].split(" ")[0];//hh:mm
