@@ -298,31 +298,8 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher, Seriali
 		});
 		JButton save = new JButton("Save Schedules");
 		Panel temp = this;//reference panel inside action listener
-		save.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				JFileChooser fc = new JFileChooser();
-				int val = fc.showSaveDialog(temp);
-				if(val == JFileChooser.APPROVE_OPTION){
-					ObjectOutputStream oos;
-					try {//open file
-						oos = new ObjectOutputStream(new FileOutputStream(fc.getSelectedFile()));
-					} catch (IOException e) {
-						//stop if fail to open file
-						return;
-					}
-					try{//write to file
-						oos.writeObject(database);
-						oos.writeObject(plan);
-						oos.writeInt(plans);
-						oos.writeObject(preference);
-					}catch (Exception e){ }
-					try {//close file
-						oos.close();
-					} catch (IOException e) { }
-				}
-			}
-		});
+		save.addActionListener(actionEvent ->
+			new OutputStorage(database, plan, plans, preference).store(this));
 
 		//add elements to menu
 		planText = new JLabel();
