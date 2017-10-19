@@ -9,6 +9,8 @@ import java.util.ArrayList;
  */
 public class Preference implements Serializable
 {
+		int minCred;
+		int maxCred;
 		int start;
 		Time startTime = new Time();
 		int end;

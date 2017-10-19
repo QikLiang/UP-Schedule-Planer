@@ -23,7 +23,8 @@ public class Network {
 	private static final String TERMS_DROPDOWN = "#term_input_id option";
 	private static final String SUBJECTS_DROPDOWN = "#subj_id option";
 	private static final String COURSE_TITLES = "table.datadisplaytable th.ddtitle a";
-	private static final String COURSE_DESCRIPTION = "table.datadisplaytable td.dddefault";
+	private static final String COURSE_DESCRIPTION =
+			"table.datadisplaytable:has(th.ddtitle) > tbody > tr > td.dddefault";
 	private static final String COURSE_DETAILS = "table td.dddefault";
 
 	/**

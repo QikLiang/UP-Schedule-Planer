@@ -14,6 +14,7 @@ import javax.swing.JTextArea;
 import javax.swing.text.DefaultCaret;
 
 import java.io.*;
+import java.util.Set;
 
 /**
  * Main class. The main method and all big methods called by main

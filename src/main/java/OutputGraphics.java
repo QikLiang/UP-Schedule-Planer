@@ -91,11 +91,15 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher, Seriali
 		int nameLines = 0;
 		for (int course=0; course<plan[currentPlan].COURSES; course++) {
 			section = database[course].section[plan[currentPlan].path[course]];
+			//skip ElectiveSections
+			if (section instanceof ElectiveSection){
+				continue;
+			}
 			drawSection(g, course, section);
 			g.drawString(String.format("%d %3s %s %s", section.crn,
 						database[course].subject, database[course].courseNumber,
 						section.sectionNumber), CHARTWIDTH+50, lines*30+30);
-			titleLines = drawLongString(g, database[course].title, lines, 200);
+			titleLines = drawLongString(g, database[course].title, lines, 195);
 			for (int i=0; i<preference.Instructors; i++) {
 				if(section.instructor.equals(preference.instructors[i])){
 					g.setColor(Color.green.darker());
@@ -107,7 +111,16 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher, Seriali
 			g.setColor(Color.gray);
 			g.drawLine(CHARTWIDTH+30, lines*30+10, CHARTWIDTH+INFOWIDTH, lines*30+10);
 		}
-		
+
+		//num credits
+		int xcord = this.getWidth() - 150;
+		int ycord = this.getHeight() - 50;
+		g.setColor(Color.white);
+		g.fillRect(xcord,ycord,100, 30);
+		g.setColor(Color.black);
+		g.drawRect(xcord,ycord,100, 30);
+		g.drawString("Credits: " + plan[currentPlan].credits, xcord+5, ycord+20);
+
 		//external commitments
 		for(int i=0; i<preference.events.size(); i++){
 			drawSection(g, -1, preference.events.get(i));

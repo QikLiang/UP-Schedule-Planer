@@ -10,6 +10,7 @@ import java.io.Serializable;
 public class Plan implements Serializable
 {
 	int[] path;
+	int credits;
 	float score = 0;
 	private int start = 0;//these few variables are data for viewing the score decomposition using debugger
 	private int end = 0;//they play no role in the functioning of the program
@@ -49,6 +50,18 @@ public class Plan implements Serializable
 				}
 			}
 		}
+
+		//check credits in preference range
+		credits = 0;
+		for(int i=0; i<database.length; i++){
+			if(! (database[i].section[path[i]] instanceof ElectiveSection)){
+				credits += database[i].credit;
+			}
+		}
+		if (credits < preference.minCred || credits > preference.maxCred){
+			return;
+		}
+
 		//set score above zero for schedules that have no conflict just in case
 		//user set all other preference variables to zero
 		score+=0.001;

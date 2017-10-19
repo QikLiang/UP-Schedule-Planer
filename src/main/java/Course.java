@@ -18,6 +18,11 @@ public class Course implements Serializable
 		}
 	}
 
+	public void addElectiveSection(){
+		section[sections] = new ElectiveSection();
+		sections++;
+	}
+
 	public String toString(){
 		return subject + courseNumber;
 	}

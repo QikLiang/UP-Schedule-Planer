@@ -1,8 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
+import java.util.*;
 
 /**
  * Creates a GUI for calling Network to select courses
@@ -61,6 +59,8 @@ public class CourseSelectionGraphics extends JPanel{
 	 * course, and convert it into Course[] when Next is pressed.
 	 */
 	private void selectCourses() throws Network.NetworkErrorException {
+		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+		this.add(Box.createVerticalGlue());
 		//get courses
 		boolean[] selected = subjectsList.getSelected();
 		ArrayList<String> subjectVals = new ArrayList<>();
@@ -88,19 +88,50 @@ public class CourseSelectionGraphics extends JPanel{
 		}
 		this.removeAll();
 		String[] subjects = coursesBySubjects.keySet().toArray(new String[0]);
-		CourseList cl = new CourseList(subjects, coursesBySubjects, courseMap);
-		this.add(cl);
+		CourseList core = new CourseList(subjects, coursesBySubjects, courseMap);
+		CourseList electives = new CourseList(subjects, coursesBySubjects, courseMap);
+		JPanel div1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		div1.add(new JLabel("Courses you have to take:"));
+		this.add(div1);
+		this.add(core);
+		JPanel div2 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
+		div2.add(new JLabel("Courses you consider taking:"));
+		this.add(div2);
+		this.add(electives);
+
+		//num credits specification
+		JTextField credMin = new JTextField();
+		credMin.setColumns(2);
+		credMin.setText("15");
+		JTextField credMax = new JTextField();
+		credMax.setColumns(2);
+		credMax.setText("18");
+
+		JPanel credRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 0,0));
+		credRow.add(new JLabel("Credits: between "));
+		credRow.add(credMin);
+		credRow.add(new JLabel(" and "));
+		credRow.add(credMax);
+		this.add(credRow);
 
 		JButton next = new JButton("Next");
 		this.add(next);
 		next.addActionListener(e -> {
-			main.database = cl.getCourses();
+			main.preference.minCred = Integer.parseInt(credMin.getText());
+			main.preference.maxCred = Integer.parseInt(credMax.getText());
+			HashSet<Course> allCourses = new HashSet<>();
+			allCourses.addAll(electives.getCourses());
+			allCourses.forEach(course -> course.addElectiveSection());
+			allCourses.addAll(core.getCourses());
+			main.database = allCourses.toArray(new Course[0]);
 			main.courses = main.database.length;
 			Container parent = this.getParent();
 			parent.add(new PreferenceGraphics(main), "preference");
 			((CardLayout)parent.getLayout()).show(parent,"preference");
 		});
+		this.add(Box.createVerticalGlue());
 		this.revalidate();
+		this.repaint();
 	}
 
 	/**
@@ -160,7 +191,7 @@ public class CourseSelectionGraphics extends JPanel{
 			JPanel panel = new JPanel();
 			panel.setLayout( new BoxLayout(panel, BoxLayout.Y_AXIS));
 			JScrollPane scrollBar = new JScrollPane(panel);
-			scrollBar.setPreferredSize( new Dimension(400, 300) );
+			scrollBar.setPreferredSize( new Dimension(250, 150) );
 			this.add(scrollBar);
 
 			JButton add = new JButton("+");
@@ -176,8 +207,8 @@ public class CourseSelectionGraphics extends JPanel{
 		/**
 		 * Get a list of all courses entered into list
 		 */
-		public Course[] getCourses(){
-			ArrayList<Course> courseList = new ArrayList<>();
+		public Set<Course> getCourses(){
+			Set<Course> courseList = new HashSet<>();
 			Course course;
 			CourseRow row;
 			for(int i=0; i<courses.size(); i++){
@@ -187,7 +218,7 @@ public class CourseSelectionGraphics extends JPanel{
 					courseList.add(course);
 				}
 			}
-			return courseList.toArray(new Course[0]);
+			return courseList;
 		}
 	}
 }
