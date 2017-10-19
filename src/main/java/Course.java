@@ -17,4 +17,8 @@ public class Course implements Serializable
 			section[i] = new Section();
 		}
 	}
+
+	public String toString(){
+		return subject + courseNumber;
+	}
 }
