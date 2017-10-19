@@ -70,11 +70,6 @@ public class Network {
 		Connection conn = Jsoup.connect(COURSES_URL);
 		conn = conn.data("term_in", termVal);
 
-		//add subjects
-		for (int i = 0; i < subjects.length; i++) {
-			conn = conn.data("sel_subj", subjects[i]);
-		}
-
 		//add dummy variables required by form
 		conn = conn
 			.data("sel_subj", "dummy")
@@ -100,6 +95,11 @@ public class Network {
 			.data("end_hh", "0")
 			.data("end_mi", "0")
 			.data("end_ap", "a");
+
+		//add subjects
+		for (int i = 0; i < subjects.length; i++) {
+			conn = conn.data("sel_subj", subjects[i]);
+		}
 
 		//fetch webpage
 		Document doc;
