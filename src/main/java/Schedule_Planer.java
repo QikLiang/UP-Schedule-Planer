@@ -1,7 +1,4 @@
-import java.awt.CardLayout;
-import java.awt.Desktop;
-import java.awt.Dimension;
-import java.awt.FlowLayout;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Scanner;
@@ -45,7 +42,7 @@ public class Schedule_Planer {
 
 	//gui variables
 	JFrame window;
-	JPanel contentpane;
+	Container contentpane;
 	CardLayout contentPaneLayout;
 	JPanel messagePane;
 	JTextArea messageBox;
@@ -75,7 +72,7 @@ public class Schedule_Planer {
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setSize(430, 450);
 		window.setLocationByPlatform(true);
-		contentpane = new JPanel();
+		contentpane = window.getContentPane();
 		contentPaneLayout = new CardLayout();
 		contentpane.setLayout(contentPaneLayout);
 
@@ -95,7 +92,6 @@ public class Schedule_Planer {
 	 */
 	private void displayGUI(){
 		contentpane.add(messagePane, "Message");
-		window.add(contentpane);
 		window.setVisible(true);
 		//window.setResizable(false);
 
@@ -112,11 +108,9 @@ public class Schedule_Planer {
 			}
 		});
 		JButton start = new JButton("Start");
-		start.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				temp.setupDatabase(div);
-			}
+		start.addActionListener(event -> {
+			contentpane.add(new CourseSelectionGraphics(this), "select courses");
+			contentPaneLayout.show( contentpane,"select courses");
 		});
 		
 		//add buttons to bottom of window
@@ -125,6 +119,7 @@ public class Schedule_Planer {
 		div.add(Box.createHorizontalGlue());
 		div.add(start);
 		messagePane.add(div);
+		messagePane.revalidate();
 		/*
 		// prompt user for input and load data into database and preference object
 		setupDatabase();
