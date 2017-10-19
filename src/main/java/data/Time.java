@@ -1,12 +1,12 @@
-import java.io.Serializable;
+package data;
 
 /**
  * store time as an object
  */
-public class Time implements Serializable
+public class Time
 {
-	int hour;
-	int minute;
+	public int hour;
+	public int minute;
 
 	public Time(){
 		hour =25;
@@ -29,9 +29,6 @@ public class Time implements Serializable
 	 * @param endTime the variable that will hold the ending time
 	 */
 	public static void parseTime(String string, Time startTime, Time endTime){
-		if(string.equals("TBA")){
-
-		}
 		String[] times = string.split("-");//split into beginning and end time
 		times[0] = times[0].trim();
 		times[1] = times[1].trim();

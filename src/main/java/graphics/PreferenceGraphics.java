@@ -1,8 +1,12 @@
+package graphics;
+
+import core.Schedule_Planer;
+import data.Course;
+import data.Preference;
+
 import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
 import java.util.Hashtable;
 
@@ -18,41 +22,40 @@ import javax.swing.JScrollPane;
 import javax.swing.JSlider;
 import javax.swing.JTextField;
 
-@SuppressWarnings("serial")
-public class PreferenceGraphics extends JPanel{
+class PreferenceGraphics extends JPanel{
 
 	//program wide variables
-	Schedule_Planer mainProgram;
-	Preference preference;
-	Course database[];
-	int courses;
+	private Schedule_Planer mainProgram;
+	private Preference preference;
+	private Course database[];
+	private int courses;
 
 	//gui variables
 	//times in day
-	JTextField startHour;
-	JTextField startMinute;
-	JTextField endHour;
-	JTextField endMinute;
-	JTextField noonStartHour;
-	JTextField noonStartMinute;
-	JTextField noonEndHour;
-	JTextField noonEndMinute;
-	JTextField noonLength;
-	JComboBox<String> startApm;
-	JComboBox<String> endApm;
-	JComboBox<String> noonStartApm;
-	JComboBox<String> noonEndApm;
-	JSlider start;
-	JSlider end;
-	JSlider noon;
-	JSlider cluster;
+	private JTextField startHour;
+	private JTextField startMinute;
+	private JTextField endHour;
+	private JTextField endMinute;
+	private JTextField noonStartHour;
+	private JTextField noonStartMinute;
+	private JTextField noonEndHour;
+	private JTextField noonEndMinute;
+	private JTextField noonLength;
+	private JComboBox<String> startApm;
+	private JComboBox<String> endApm;
+	private JComboBox<String> noonStartApm;
+	private JComboBox<String> noonEndApm;
+	private JSlider start;
+	private JSlider end;
+	private JSlider noon;
+	private JSlider cluster;
 	//instructors
-	JSlider instructor;
-	JCheckBox checkBox[];
-	ArrayList<String> instructorList;
+	private JSlider instructor;
+	private JCheckBox checkBox[];
+	private ArrayList<String> instructorList;
 	//external commitment events
-	ArrayList<EventGraphics> events;
-	JSlider externalCommitments;
+	private ArrayList<EventGraphics> events;
+	private JSlider externalCommitments;
 
 	PreferenceGraphics(Schedule_Planer mainProgram){
 		this.mainProgram = mainProgram;
@@ -69,8 +72,6 @@ public class PreferenceGraphics extends JPanel{
 
 	/**
 	 * extract a list of instructors from database and add them to instructorList
-	 * @param database
-	 * @param courses
 	 */
 	private void loadInstructors(Course database[], int courses) {
 		//add instructors
@@ -95,7 +96,7 @@ public class PreferenceGraphics extends JPanel{
 		row1.add(new JLabel("Preferences"));
 		menu.add(row1);
 
-		JButton time = new JButton("Time Preferences");
+		JButton time = new JButton("data.Time Preferences");
 		time.addActionListener(event -> {
 			CardLayout layout = (CardLayout) getLayout();
 			layout.show(this, "page1");
@@ -143,7 +144,6 @@ public class PreferenceGraphics extends JPanel{
 
 	/**
 	 * graphics on page 1 of preference menu
-	 * @return
 	 */
 	private JPanel page1(){
 		final String ampm[]= {"AM", "PM"};
@@ -278,8 +278,8 @@ public class PreferenceGraphics extends JPanel{
 		cluster.setMajorTickSpacing(10);
 		cluster.setPaintLabels(true);
 		Hashtable <Integer, JLabel> clusterLabel = new Hashtable<>();
-		clusterLabel.put( new Integer(-10), new JLabel("evenly lengthed days") );
-		clusterLabel.put( new Integer(10), new JLabel("easy day\n and hard day") );
+		clusterLabel.put(-10, new JLabel("evenly lengthed days") );
+		clusterLabel.put(10, new JLabel("easy day\n and hard day") );
 		cluster.setLabelTable( clusterLabel );
 		cluster.setPreferredSize( new Dimension(400,30) );
 		JPanel div8 = new JPanel();
@@ -305,7 +305,6 @@ public class PreferenceGraphics extends JPanel{
 
 	/**
 	 * graphics on page 2 of preference menu
-	 * @return
 	 */
 	private JPanel page2(){
 		JPanel page2 = new JPanel();
@@ -355,7 +354,6 @@ public class PreferenceGraphics extends JPanel{
 	/**
 	 * graphics on page 3 of preference menu
 	 * used to set preference for external commitments
-	 * @return
 	 */
 	private JPanel page3(){
 		JPanel page3 = new JPanel();
@@ -378,7 +376,7 @@ public class PreferenceGraphics extends JPanel{
 
 		//list
 		events = new ArrayList<>();
-		//page3.add( new EventGraphics().toJPanel() );
+		//page3.add( new graphics.EventGraphics().toJPanel() );
 		JPanel list = new JPanel();
 		list.setLayout( new BoxLayout(list, BoxLayout.Y_AXIS));
 		list.add(new JLabel("No events specified"));
@@ -388,26 +386,21 @@ public class PreferenceGraphics extends JPanel{
 		page3.add(scrollBar);
 
 		//buttons
-		PreferenceGraphics panel = this;//for changing panel inside button
-
 		//add
 		JButton addEvent = new JButton("Add event");
-		addEvent.addActionListener( new ActionListener(){
-			public void actionPerformed(ActionEvent e){
-				//if list is still empty
-				if(events.size()==0){
-					//dump the message out first
-					list.removeAll();
-				}
-				//and add another event
-				EventGraphics event = new EventGraphics();
-				events.add(event);
-				list.add(event.toJPanel());
-				list.revalidate();
-				list.repaint();
+		addEvent.addActionListener(e -> {
+			//if list is still empty
+			if(events.size()==0){
+				//dump the message out first
+				list.removeAll();
 			}
-		} );
-
+			//and add another event
+			EventGraphics event = new EventGraphics();
+			events.add(event);
+			list.add(event.toJPanel());
+			list.revalidate();
+			list.repaint();
+		});
 
 		//done
 		JButton done = new JButton("Done");
@@ -483,8 +476,8 @@ public class PreferenceGraphics extends JPanel{
 		try{
 			//external commitments
 			preference.externalCommitments = externalCommitments.getValue();
-			for(int i=0; i<events.size(); i++){
-				preference.events.add( events.get(i).toSection() );
+			for (EventGraphics event : events) {
+				preference.events.add(event.toSection());
 			}
 		}catch(NumberFormatException e){
 			JOptionPane.showMessageDialog(null, "Error: A text box on page 3 expects and number but got something else.");

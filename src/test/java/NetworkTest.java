@@ -1,3 +1,5 @@
+import core.Network;
+import data.Course;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
@@ -55,9 +57,9 @@ public class NetworkTest {
 		Assert.assertTrue("No courses found", courses != null && courses.length > 0);
 
 		for (int i = 0; i < subjects.length; i++) {
-			Assert.assertNotNull("Course subject empty", courses[i].subject);
-			Assert.assertNotNull("Course number empty", courses[i].courseNumber);
-			Assert.assertNotNull("Course title empty", courses[i].title);
+			Assert.assertNotNull("data.Course subject empty", courses[i].subject);
+			Assert.assertNotNull("data.Course number empty", courses[i].courseNumber);
+			Assert.assertNotNull("data.Course title empty", courses[i].title);
 
 			Assert.assertTrue("sections empty", courses[i].sections != 0);
 			for(int j=0; j<courses[j].sections; j++){

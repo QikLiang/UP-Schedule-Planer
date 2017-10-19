@@ -1,3 +1,7 @@
+package graphics;
+
+import core.Schedule_Planer;
+import data.*;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -6,27 +10,18 @@ import java.awt.Graphics;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.Panel;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.ObjectOutputStream;
-import java.io.Serializable;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-@SuppressWarnings("serial")
 /**
  * this class takes care of ending graphics
  */
-public class OutputGraphics extends Panel implements KeyEventDispatcher, Serializable
+public class OutputGraphics extends Panel implements KeyEventDispatcher
 {
 	private final Course[] database;
 	private final Preference preference;
@@ -34,7 +29,7 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher, Seriali
 	private int currentPlan = 0;
 	private final int plans;
 
-	public final JPanel menu;
+	private final JPanel menu;
 	private JLabel planText;
 	private JLabel scoreText;
 
@@ -87,8 +82,8 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher, Seriali
 		//items in the chart itself
 		Section section;
 		int lines = 0;
-		int titleLines = 0;
-		int nameLines = 0;
+		int titleLines;
+		int nameLines;
 		for (int course=0; course<plan[currentPlan].COURSES; course++) {
 			section = database[course].section[plan[currentPlan].path[course]];
 			//skip ElectiveSections
@@ -277,27 +272,20 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher, Seriali
 
 		//create buttons for switching plans
 		JButton left = new JButton("<-");
-		left.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				if(currentPlan>0){
-					currentPlan--;
-				}
-				repaint();
+		left.addActionListener(arg0 -> {
+			if(currentPlan>0){
+				currentPlan--;
 			}
+			repaint();
 		});
 		JButton right= new JButton("->");
-		right.addActionListener(new ActionListener(){
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				if(currentPlan+1<plans){
-					currentPlan++;
-				}
-				repaint();
+		right.addActionListener(arg0 -> {
+			if(currentPlan+1<plans){
+				currentPlan++;
 			}
+			repaint();
 		});
 		JButton save = new JButton("Save Schedules");
-		Panel temp = this;//reference panel inside action listener
 		save.addActionListener(actionEvent ->
 			new OutputStorage(database, plan, plans, preference).store(this));
 

@@ -1,25 +1,25 @@
-import java.io.Serializable;
+package data;
 
 /**
- * This is a collection of Schedule objects that combine to create a possible semester plan. It will eventually be
- * passed to the OutputGraphics class to be used to generate the final out put to the user.
+ * This is a collection of data.Schedule objects that combine to create a possible semester plan. It will eventually be
+ * passed to the graphics.OutputGraphics class to be used to generate the final out put to the user.
  * 
  * @author Qi Liang
  * @version 
  */
-public class Plan implements Serializable
+public class Plan
 {
-	int[] path;
-	int credits;
-	float score = 0;
+	public int[] path;
+	public int credits;
+	public float score = 0;
+	public final int COURSES;
 	private int start = 0;//these few variables are data for viewing the score decomposition using debugger
 	private int end = 0;//they play no role in the functioning of the program
 	private int noon = 0;
 	private int instructor = 0;
 	private double dispersion=0;
 	private double events=0;
-	final int COURSES;
-	int Courses[] = {0,0,0,0,0};//number of courses a day, start out with no classes each day until schedule is loaded
+	private int Courses[] = {0,0,0,0,0};//number of courses a day, start out with no classes each day until schedule is loaded
 	Schedule[][] schedule;
 
 	public Plan(final int courses, final int[] initPath){
@@ -33,7 +33,7 @@ public class Plan implements Serializable
 		}
 	}
 
-	void evaluateScore(final Course database[], final Preference preference){
+	public void evaluateScore(final Course database[], final Preference preference){
 		Time temp1;
 		Time temp2;
 

@@ -1,3 +1,7 @@
+package core;
+
+import data.Course;
+import data.Section;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
@@ -99,8 +103,8 @@ public class Network {
 			.data("end_ap", "a");
 
 		//add subjects
-		for (int i = 0; i < subjects.length; i++) {
-			conn = conn.data("sel_subj", subjects[i]);
+		for (String subject : subjects) {
+			conn = conn.data("sel_subj", subject);
 		}
 
 		//fetch webpage

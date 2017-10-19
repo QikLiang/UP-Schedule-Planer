@@ -1,9 +1,14 @@
+package data;
+
+import core.Schedule_Planer;
+import data.Section;
+
 import java.io.Serializable;
 
 /**
  * 
  */
-public class Course implements Serializable
+public class Course
 {
 	public String subject;
 	public String courseNumber;

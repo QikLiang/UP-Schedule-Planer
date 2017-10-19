@@ -1,4 +1,9 @@
+package graphics;
+
 import com.google.gson.Gson;
+import data.Course;
+import data.Plan;
+import data.Preference;
 
 import javax.swing.*;
 import java.awt.*;
@@ -7,16 +12,16 @@ import java.io.PrintWriter;
 import java.util.Scanner;
 
 /**
- * Stores all data used by OutputGraphics into a file
- * and recreate the OutputGraphics when supplied a file.
+ * Stores all data used by graphics.OutputGraphics into a file
+ * and recreate the graphics.OutputGraphics when supplied a file.
  * The file is in JSON format by using the GSON library
  * to covert between JSON and Java objects.
  */
 public class OutputStorage {
-	Course[] database;
-	Plan[] plan;
-	int plans;
-	Preference preference;
+	private Course[] database;
+	private Plan[] plan;
+	private int plans;
+	private Preference preference;
 
 	public OutputStorage(Course[] database, Plan[] plan, int plans, Preference preference){
 		this.database = database;
@@ -45,16 +50,14 @@ public class OutputStorage {
 				//stop if fail to open file
 				return;
 			}
-			try{//write to file
-				Gson gson = new Gson();
-				writer.print(gson.toJson(this));
-			}catch (Exception e){ }
+			Gson gson = new Gson();
+			writer.print(gson.toJson(this));
 			writer.close();
 		}
 	}
 
 	/**
-	 * use file chooser to read an OutputStorage object from file
+	 * use file chooser to read an graphics.OutputStorage object from file
 	 * @param anchor anchor for file chooser
 	 * @return object, or null if error
 	 */

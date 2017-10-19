@@ -1,20 +1,22 @@
+package core;
+
+import data.Course;
+import data.Plan;
+import data.Preference;
+import graphics.CourseSelectionGraphics;
+import graphics.OutputGraphics;
+import graphics.OutputStorage;
+
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.Scanner;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.text.DefaultCaret;
-
-import java.io.*;
-import java.util.Set;
 
 /**
  * Main class. The main method and all big methods called by main
@@ -24,29 +26,26 @@ import java.util.Set;
  */
 public class Schedule_Planer {
 	//universal variables
-	static final int SECTIONS = 25; //maximum number of sections per course
-	static final int COURSES = 9; //maximum number of courses in database
-	static final int PLANS = 100;//maximum number of different schedules the
+	public static final int SECTIONS = 25; //maximum number of sections per course
+	public static final int COURSES = 9; //maximum number of courses in database
+	public static final int PLANS = 100;//maximum number of different schedules the
 	//program can handle
-	Scanner keyboard = new Scanner(System.in);
 
 	public static boolean testing = true;
-	//address of the database file
-	final String DATABASE = "database.txt";
 
 	//instance variables
-	Course[] database;
-	Plan[] plan;
-	int courses;
-	int plans;
-	Preference preference;
+	public Course[] database;
+	public int courses;
+	public Preference preference;
+	private Plan[] plan;
+	private int plans;
 
 	//gui variables
-	JFrame window;
-	Container contentpane;
-	CardLayout contentPaneLayout;
-	JPanel messagePane;
-	JTextArea messageBox;
+	private JFrame window;
+	private Container contentpane;
+	private CardLayout contentPaneLayout;
+	private JPanel messagePane;
+	private JTextArea messageBox;
 
 	public static void main(String[] args) {
 		Schedule_Planer planer = new Schedule_Planer();
@@ -69,7 +68,7 @@ public class Schedule_Planer {
 		}
 
 		//set up GUI
-		window = new JFrame("UP Schedule Planer");
+		window = new JFrame("UP data.Schedule Planer");
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setSize(430, 450);
 		window.setLocationByPlatform(true);
@@ -96,16 +95,16 @@ public class Schedule_Planer {
 		window.setVisible(true);
 		//window.setResizable(false);
 
-		messageBox.append("Schedule planer ver 2.2.1 for University of Portland, by Qi Liang\n");
+		messageBox.append("data.Schedule planer ver 2.2.1 for University of Portland, by Qi Liang\n");
 
 		//create buttons for options
-		Schedule_Planer temp = this;
 		JPanel div = new JPanel();
-		JButton open = new JButton("Open Saved Schedule");
+		JButton open = new JButton("Open Saved data.Schedule");
 		open.addActionListener(e -> {
 					OutputStorage os = OutputStorage.getFromFile(window);
 					if (os == null){
 						JOptionPane.showMessageDialog(window, "Error: can't read file");
+						return;
 					}
 					startOutputGraphics(os.toGraphics());
 				}
@@ -135,7 +134,7 @@ public class Schedule_Planer {
 	 * input plan[]. When number of plans exceed array size, the array is shorted
 	 * and the half with lower scores is discarded, and then continue.
 	 */
-	void createPlans() {
+	public void createPlans() {
 		plans = 0;
 		Plan thisPlan;
 		int[] thisPlanPath = new int[courses];
@@ -171,7 +170,7 @@ public class Schedule_Planer {
 	 * @param plan array with all the plans in it
 	 * @param plans how many elements of the array is filled
 	 */
-	static void sortPlans(Plan plan[], final int plans) {
+	private static void sortPlans(Plan plan[], final int plans) {
 		Plan temp; // holding variable
 		for (int i = 0; i < plans; i++) {
 			for (int j = 0; j < plans - 1 - i; j++) {
@@ -182,7 +181,6 @@ public class Schedule_Planer {
 				}
 			}
 		}
-		return;
 	}
 
 	/**
@@ -194,8 +192,8 @@ public class Schedule_Planer {
 
 	private void startOutputGraphics(JPanel output){
 		contentpane.add(output, "Output");
-		window.setSize(OutputGraphics.CHARTWIDTH+OutputGraphics.INFOWIDTH+OutputGraphics.OFFSHIFTX,
-				OutputGraphics.CHARTHEIGHT+OutputGraphics.OFFSHIFTY+10);
+		window.setSize(OutputGraphics.CHARTWIDTH+ OutputGraphics.INFOWIDTH+ OutputGraphics.OFFSHIFTX,
+				OutputGraphics.CHARTHEIGHT+ OutputGraphics.OFFSHIFTY+10);
 		window.setLocationRelativeTo(null);
 		((CardLayout) contentpane.getLayout()).show(contentpane, "Output");
 	}

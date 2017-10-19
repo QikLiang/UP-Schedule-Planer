@@ -1,13 +1,13 @@
-import java.io.Serializable;
+package data;
 
 /**
  * This is a more compact version of section with unnecessary
  * variables removed. It is used to check in what times does 
  * a plan have class.
  */
-public class Schedule implements Serializable
+public class Schedule
 {
-	int course = 0;
-	Time startTime = new Time();
-	Time endTime = new Time();
+	public int course = 0;
+	public Time startTime = new Time();
+	public Time endTime = new Time();
 }

@@ -1,3 +1,8 @@
+package graphics;
+
+import data.Section;
+import data.Time;
+
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 
@@ -8,19 +13,19 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-public class EventGraphics {
+class EventGraphics {
 	private final String ampm[]= {"AM", "PM"};
 
-	public JTextField name;
-	public JTextField startHour;
-	public JTextField startMinute;
-	public JComboBox<String> startApm;
-	public JTextField endHour;
-	public JTextField endMinute;
-	public JComboBox<String> endApm;
-	public JCheckBox weekDays[];
+	private JTextField name;
+	private JTextField startHour;
+	private JTextField startMinute;
+	private JComboBox<String> startApm;
+	private JTextField endHour;
+	private JTextField endMinute;
+	private JComboBox<String> endApm;
+	private JCheckBox weekDays[];
 
-	public EventGraphics(){
+	EventGraphics(){
 		name = new JTextField();
 		name.setColumns(15);
 		startHour = new JTextField(2);
@@ -39,9 +44,8 @@ public class EventGraphics {
 	/**
 	 * create a JPanel with all of the attributes in it formated
 	 * for adding into preference graphics' page3
-	 * @return
 	 */
-	public JPanel toJPanel(){
+	JPanel toJPanel(){
 		JPanel row1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		row1.setMaximumSize(new Dimension(400, 30));
 		row1.add(new JLabel("Event: "));
@@ -74,9 +78,8 @@ public class EventGraphics {
 	
 	/**
 	 * convert an event's information to a section with the section number set to the name of the event
-	 * @return
 	 */
-	public Section toSection() throws NumberFormatException {
+	Section toSection() throws NumberFormatException {
 		Section section = new Section();
 		
 		//name

@@ -1,7 +1,9 @@
+package data;
+
 /**
  * If a course is optional, it will contain an
- * ElectiveSection as one of its sections. Having
- * the ElectiveSection in a Plan means the Course
+ * data.ElectiveSection as one of its sections. Having
+ * the data.ElectiveSection in a data.Plan means the data.Course
  * will not be taken.
  */
 public class ElectiveSection extends Section {

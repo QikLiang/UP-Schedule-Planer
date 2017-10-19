@@ -1,9 +1,11 @@
-import java.io.Serializable;
+package data;
+
+import data.Time;
 
 /**
  * The info of one section in a course
  */
-public class Section implements Serializable
+public class Section
 {
 	public int crn = 0;
 	public String sectionNumber;

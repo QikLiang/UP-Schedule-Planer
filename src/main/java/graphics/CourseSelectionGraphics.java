@@ -1,22 +1,27 @@
+package graphics;
+
+import core.Network;
+import core.Schedule_Planer;
+import data.Course;
+
 import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 
 /**
- * Creates a GUI for calling Network to select courses
+ * Creates a GUI for calling core.Network to select courses
  */
 public class CourseSelectionGraphics extends JPanel{
 
-	HashMap<String, String> termVal;
-	JComboBox<String> term;
-	CheckboxList subjectsList;
-	String[][] subjects;
-	Schedule_Planer main;
+	private HashMap<String, String> termVal;
+	private JComboBox<String> term;
+	private CheckboxList subjectsList;
+	private String[][] subjects;
+	private Schedule_Planer main;
 
 	/**
 	 * creates page 1 of GUI. This includes a dropbox for
 	 * selecting term and check list for selecting subjects
-	 * @param main
 	 */
 	public CourseSelectionGraphics (Schedule_Planer main) throws Network.NetworkErrorException {
 		this.main = main;
@@ -56,7 +61,7 @@ public class CourseSelectionGraphics extends JPanel{
 
 	/**
 	 * page 2 of GUI. Selects subject and courseNum for each
-	 * course, and convert it into Course[] when Next is pressed.
+	 * course, and convert it into data.Course[] when Next is pressed.
 	 */
 	private void selectCourses() throws Network.NetworkErrorException {
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
@@ -73,19 +78,20 @@ public class CourseSelectionGraphics extends JPanel{
 		Course[] courses = Network.getCourses(termValue,
 				subjectVals.toArray(new String[0]));
 
-		//display courses
 		HashMap<String, ArrayList<Course>> coursesBySubjects = new HashMap<>();
 		HashMap<String, Course> courseMap = new HashMap<>();
 		ArrayList<Course> list;
-		for (int i=0; i<courses.length; i++){
-			list = coursesBySubjects.get(courses[i].subject);
-			if (list == null){
+		for (Course course : courses) {
+			list = coursesBySubjects.get(course.subject);
+			if (list == null) {
 				list = new ArrayList<>();
-				coursesBySubjects.put(courses[i].subject, list);
+				coursesBySubjects.put(course.subject, list);
 			}
-			list.add(courses[i]);
-			courseMap.put(courses[i].subject+courses[i].courseNumber, courses[i]);
+			list.add(course);
+			courseMap.put(course.subject + course.courseNumber, course);
 		}
+
+		//display courses
 		this.removeAll();
 		String[] subjects = coursesBySubjects.keySet().toArray(new String[0]);
 		CourseList core = new CourseList(subjects, coursesBySubjects, courseMap);
@@ -121,7 +127,7 @@ public class CourseSelectionGraphics extends JPanel{
 			main.preference.maxCred = Integer.parseInt(credMax.getText());
 			HashSet<Course> allCourses = new HashSet<>();
 			allCourses.addAll(electives.getCourses());
-			allCourses.forEach(course -> course.addElectiveSection());
+			allCourses.forEach(Course::addElectiveSection);
 			allCourses.addAll(core.getCourses());
 			main.database = allCourses.toArray(new Course[0]);
 			main.courses = main.database.length;
@@ -168,14 +174,14 @@ public class CourseSelectionGraphics extends JPanel{
 		/**
 		 * Creates the GUI object to be placed into GUI list
 		 */
-		public JPanel toJPanel(){
+		JPanel toJPanel(){
 			panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
 			panel.add(subject);
 			return panel;
 		}
 
-		public String getSubject(){ return (String) subject.getSelectedItem(); }
-		public String getCourse(){ return (String) course.getSelectedItem(); }
+		private String getSubject(){ return (String) subject.getSelectedItem(); }
+		private String getCourse(){ return (String) course.getSelectedItem(); }
 	}
 
 	/**
@@ -207,14 +213,12 @@ public class CourseSelectionGraphics extends JPanel{
 		/**
 		 * Get a list of all courses entered into list
 		 */
-		public Set<Course> getCourses(){
+		private Set<Course> getCourses(){
 			Set<Course> courseList = new HashSet<>();
 			Course course;
-			CourseRow row;
-			for(int i=0; i<courses.size(); i++){
-				row = courses.get(i);
+			for (CourseRow row : courses) {
 				course = courseMap.get(row.getSubject() + row.getCourse());
-				if (course != null){
+				if (course != null) {
 					courseList.add(course);
 				}
 			}
