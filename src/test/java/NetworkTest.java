@@ -5,7 +5,7 @@ import java.util.regex.Pattern;
 
 public class NetworkTest {
 	@Test
-	void getTerms() {
+	void getTerms() throws Network.NetworkErrorException {
 		String[][] terms = Network.getTerms();
 
 		Assert.assertTrue(terms != null && terms.length > 0);
@@ -21,7 +21,7 @@ public class NetworkTest {
 	}
 
 	@Test
-	void getSubjects() {
+	void getSubjects() throws Network.NetworkErrorException {
 		String[][] terms = Network.getTerms();
 		//the first item is "None", so select the select item from terms
 		String[][] subjects = Network.getSubjects(terms[1][1]);
@@ -41,7 +41,7 @@ public class NetworkTest {
 	}
 
 	@Test
-	void getCourses() {
+	void getCourses() throws Network.NetworkErrorException {
 		//the first item is "None", so select the select item from terms
 		String termVal = Network.getTerms()[1][1];
 		String[][] subjects = Network.getSubjects(termVal);
