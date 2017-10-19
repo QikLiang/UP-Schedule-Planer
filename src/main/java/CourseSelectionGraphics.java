@@ -20,7 +20,7 @@ public class CourseSelectionGraphics extends JPanel{
 	 * selecting term and check list for selecting subjects
 	 * @param main
 	 */
-	public CourseSelectionGraphics (Schedule_Planer main){
+	public CourseSelectionGraphics (Schedule_Planer main) throws Network.NetworkErrorException {
 		this.main = main;
 		//get list of terms and add them into dropdown
 		String[][] terms = Network.getTerms();
@@ -45,7 +45,14 @@ public class CourseSelectionGraphics extends JPanel{
 
 		//button to next page (select courses)
 		JButton next = new JButton("Next");
-		next.addActionListener(e -> selectCourses());
+		next.addActionListener(e -> {
+			try {
+				selectCourses();
+			} catch (Network.NetworkErrorException e1) {
+				JOptionPane.showMessageDialog( null,
+					"Error: Internet access not available. Please try again later");
+			}
+		});
 		this.add(next);
 	}
 
@@ -53,7 +60,7 @@ public class CourseSelectionGraphics extends JPanel{
 	 * page 2 of GUI. Selects subject and courseNum for each
 	 * course, and convert it into Course[] when Next is pressed.
 	 */
-	private void selectCourses(){
+	private void selectCourses() throws Network.NetworkErrorException {
 		//get courses
 		boolean[] selected = subjectsList.getSelected();
 		ArrayList<String> subjectVals = new ArrayList<>();

@@ -109,8 +109,13 @@ public class Schedule_Planer {
 		});
 		JButton start = new JButton("Start");
 		start.addActionListener(event -> {
-			contentpane.add(new CourseSelectionGraphics(this), "select courses");
-			contentPaneLayout.show( contentpane,"select courses");
+			try {
+				contentpane.add(new CourseSelectionGraphics(this), "select courses");
+				contentPaneLayout.show( contentpane,"select courses");
+			} catch (Network.NetworkErrorException e) {
+				JOptionPane.showMessageDialog( null,
+						"Error: Internet access not available. Please try again later");
+			}
 		});
 		
 		//add buttons to bottom of window

@@ -6,7 +6,6 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -24,20 +23,21 @@ public class Network {
 	private static final String TERMS_DROPDOWN = "#term_input_id option";
 	private static final String SUBJECTS_DROPDOWN = "#subj_id option";
 	private static final String COURSE_TITLES = "table.datadisplaytable th.ddtitle a";
-	private static final String COURSE_TABLE = "table.datadisplaytable td.dddefault table";
-	private static final String COURSE_DETAILS = "td.dddefault";
+	private static final String COURSE_DESCRIPTION = "table.datadisplaytable td.dddefault";
+	private static final String COURSE_DETAILS = "table td.dddefault";
 
 	/**
 	 * gets the list of terms
 	 *
 	 * @return [[termText, termValue]], null if connection fails
 	 */
-	public static String[][] getTerms() {
+	public static String[][] getTerms() throws NetworkErrorException {
 		String[][] result = getDropdownValues(
 				Jsoup.connect(TERMS_URL).method(Connection.Method.GET),
 				TERMS_DROPDOWN);
 		if (result == null) {
 			System.out.println("Error: Failed to fetch terms");
+			throw new NetworkErrorException();
 		}
 		return result;
 	}
@@ -47,7 +47,7 @@ public class Network {
 	 * @param termVal dropdown option value of given term
 	 * @return [[subjectText, subjectValue]]
 	 */
-	public static String[][] getSubjects(String termVal) {
+	public static String[][] getSubjects(String termVal) throws NetworkErrorException {
 		String[][] result = getDropdownValues(
 				Jsoup.connect(SUBJECTS_URL)
 						.data("p_calling_proc", "bwckschd.p_disp_dyn_sched",
@@ -56,6 +56,7 @@ public class Network {
 				SUBJECTS_DROPDOWN);
 		if (result == null) {
 			System.out.println("Error: Failed to fetch subjects");
+			throw new NetworkErrorException();
 		}
 		return result;
 	}
@@ -66,7 +67,7 @@ public class Network {
 	 * @param subjects list of option values for subjects
 	 * @return list of Courses, sections with TBA time skipped
 	 */
-	public static Course[] getCourses(String termVal, String[] subjects) {
+	public static Course[] getCourses(String termVal, String[] subjects) throws NetworkErrorException {
 		Connection conn = Jsoup.connect(COURSES_URL);
 		conn = conn.data("term_in", termVal);
 
@@ -107,12 +108,12 @@ public class Network {
 			doc = conn.validateTLSCertificates(false).post();
 		} catch (IOException e) {
 			System.out.println("Error: Failed to fetch courses: " + e.getMessage());
-			return null;
+			throw new NetworkErrorException();
 		}
 
 		//extract course titles and details
 		List<String> titles = doc.select(COURSE_TITLES).eachText();
-		Elements tables = doc.select(COURSE_TABLE);
+		Elements discriptions = doc.select(COURSE_DESCRIPTION);
 
 		//vars used in for loop
 		int numSections = titles.size();
@@ -122,14 +123,16 @@ public class Network {
 		String courseStr;
 		//captures string "(Name) - (crn) - ((subject) (course)) - (section)"
 		Pattern title = Pattern.compile("(.+?) - (\\d+) - (([A-Z]+) ([\\dA-Z]+)) - ([A-Z]+)");
+		Pattern credit = Pattern.compile("(\\d+)(\\.\\d+)? Credits");
 		Matcher match;
+		Matcher match2;
 		Elements details;
 
 		//add sections into courses
 		for (int i = 0; i < numSections; i++) {
 			match = title.matcher(titles.get(i));
 			match.find();
-			details = tables.get(i).select(COURSE_DETAILS);
+			details = discriptions.get(i).select(COURSE_DETAILS);
 
 			//ignore section if time undetermined
 			if(details.get(1).text().equals("TBA")){
@@ -144,6 +147,9 @@ public class Network {
 				course.subject = match.group(4);
 				course.courseNumber = match.group(5);
 				course.title = match.group(1);
+				match2 = credit.matcher(discriptions.get(i).text());
+				match2.find();
+				course.credit = Integer.parseInt(match2.group(1));
 				courses.put(courseStr, course);
 			}
 
@@ -196,4 +202,6 @@ public class Network {
 		}
 		return results;
 	}
+
+	public static class NetworkErrorException extends Exception{ }
 }
