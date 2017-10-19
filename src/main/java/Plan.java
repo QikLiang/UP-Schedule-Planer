@@ -73,7 +73,11 @@ public class Plan implements Serializable
 			//check for noon break
 			for (int course = 0; course < Courses[day]; course++){
 				temp1 = Time.laterTime(schedule[day][course].endTime, preference.noonBegin);
-				temp2 = Time.earlierTime(schedule[day][course + 1].startTime, preference.noonEnd);
+				if (schedule[day].length<Courses[day]) {
+					temp2 = Time.earlierTime(schedule[day][course + 1].startTime, preference.noonEnd);
+				} else {
+					temp2 = preference.noonEnd;
+				}
 				if (temp2.hour*60+temp2.minute-(temp1.hour*60+temp2.minute)>preference.duration){
 					score += preference.noon*0.2;
 					noon++;
