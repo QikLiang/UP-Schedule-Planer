@@ -1,5 +1,6 @@
 import core.Network;
 import data.Course;
+import data.Section;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
@@ -68,5 +69,17 @@ public class NetworkTest {
 				Assert.assertNotNull("seciton instructor empty", courses[i].section[j].instructor);
 			}
 		}
+	}
+
+	@Test
+	void sectionFull() throws Network.NetworkErrorException{
+		String fall2017 = "201801";
+		Section CS203A = new Section();
+		CS203A.crn = 10366;
+		Section CS301A = new Section();
+		CS301A.crn = 10368;
+
+		Assert.assertTrue("Section should be full", Network.sectionFull(fall2017, CS203A));
+		Assert.assertTrue("Section shouldn't be full", !Network.sectionFull(fall2017, CS301A));
 	}
 }

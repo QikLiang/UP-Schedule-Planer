@@ -13,5 +13,6 @@ public class ElectiveSection extends Section {
 			schedule[day][0].hour = 25;
 			schedule[day][1].hour = 25;
 		}
+		instructor = "";
 	}
 }

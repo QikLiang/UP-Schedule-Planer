@@ -30,6 +30,10 @@ public class Network {
 	private static final String COURSE_DESCRIPTION =
 			"table.datadisplaytable:has(th.ddtitle) > tbody > tr > td.dddefault";
 	private static final String COURSE_DETAILS = "table td.dddefault";
+	private static final String SECTION_CAPACITY = "table.datadisplaytable table.datadisplaytable td.dddefault";
+
+
+	private static String lastUsedTermVal = null;
 
 	/**
 	 * gets the list of terms
@@ -73,6 +77,8 @@ public class Network {
 	 * @return list of Courses, sections with TBA time skipped
 	 */
 	public static Course[] getCourses(String termVal, String[] subjects) throws NetworkErrorException {
+		lastUsedTermVal = termVal;
+
 		Connection conn = Jsoup.connect(COURSES_URL);
 		conn = conn.data("term_in", termVal);
 
@@ -206,6 +212,21 @@ public class Network {
 			results[i][1] = values[i];
 		}
 		return results;
+	}
+
+	public static boolean sectionFull(String termVal, Section section) throws NetworkErrorException {
+		Document doc;
+		try {
+			doc = Jsoup.connect("https://selfserve-db.up.edu/prd/bwckschd.p_disp_detail_sched?term_in="
+					+ termVal + "&crn_in=" + section.crn).validateTLSCertificates(false).get();
+		} catch (IOException e) {
+			throw new NetworkErrorException();
+		}
+		return doc.select(SECTION_CAPACITY).get(2).text().equals("0");
+	}
+
+	public static boolean sectionFull(Section section) throws NetworkErrorException {
+		return sectionFull(lastUsedTermVal, section);
 	}
 
 	public static class NetworkErrorException extends Exception{ }

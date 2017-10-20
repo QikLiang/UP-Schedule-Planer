@@ -99,7 +99,7 @@ public class Schedule_Planer {
 
 		//create buttons for options
 		JPanel div = new JPanel();
-		JButton open = new JButton("Open Saved data.Schedule");
+		JButton open = new JButton("Open Saved Schedule");
 		open.addActionListener(e -> {
 					OutputStorage os = OutputStorage.getFromFile(window);
 					if (os == null){

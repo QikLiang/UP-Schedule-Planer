@@ -1,22 +1,19 @@
 package graphics;
 
+import core.Network;
 import core.Schedule_Planer;
 import data.*;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.KeyEventDispatcher;
-import java.awt.KeyboardFocusManager;
-import java.awt.Panel;
+import java.awt.*;
 import java.awt.event.KeyEvent;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JPanel;
+import javax.imageio.ImageIO;
+import javax.swing.*;
 
 /**
  * this class takes care of ending graphics
@@ -25,9 +22,9 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 {
 	private final Course[] database;
 	private final Preference preference;
-	private final Plan[] plan;
+	private Plan[] plan;
 	private int currentPlan = 0;
-	private final int plans;
+	private int plans;
 
 	private final JPanel menu;
 	private JLabel planText;
@@ -48,7 +45,12 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 			g.drawString("No compatiple schedule exists for the courses selected.", 100, 20);
 			return;
 		}
-		
+
+		//draw white background
+		g.setColor(Color.white);
+		g.fillRect(0,0,this.getWidth(), this.getHeight());
+		g.setColor(Color.black);
+
 		//days marks above the chart
 		g.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
 		String[] days = {"Monday","Tuesday","Wednesday","Thursday","Friday"};
@@ -86,14 +88,15 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 		int nameLines;
 		for (int course=0; course<plan[currentPlan].COURSES; course++) {
 			section = database[course].section[plan[currentPlan].path[course]];
-			//skip ElectiveSections
-			if (section instanceof ElectiveSection){
+			//skip ElectiveSections, check sectionNumber instead of using instantof
+			//saving to file could have changed data type
+			if (section.sectionNumber == null){
 				continue;
 			}
 			drawSection(g, course, section);
 			g.drawString(String.format("%d %3s %s %s", section.crn,
 						database[course].subject, database[course].courseNumber,
-						section.sectionNumber), CHARTWIDTH+50, lines*30+30);
+						section.sectionNumber), CHARTWIDTH+40, lines*30+30);
 			titleLines = drawLongString(g, database[course].title, lines, 195);
 			for (int i=0; i<preference.Instructors; i++) {
 				if(section.instructor.equals(preference.instructors[i])){
@@ -111,9 +114,9 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 		int xcord = this.getWidth() - 150;
 		int ycord = this.getHeight() - 50;
 		g.setColor(Color.white);
-		g.fillRect(xcord,ycord,100, 30);
+		g.fillRect(xcord,ycord,110, 30);
 		g.setColor(Color.black);
-		g.drawRect(xcord,ycord,100, 30);
+		g.drawRect(xcord,ycord,110, 30);
 		g.drawString("Credits: " + plan[currentPlan].credits, xcord+5, ycord+20);
 
 		//external commitments
@@ -250,12 +253,12 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 	
 	public static JPanel createGraphicsJPanel(Course[] initDatabase, Plan[] initPlan, int initPlans, Preference initPreference){
 		JPanel panel = new JPanel();
-		panel.setLayout( new BoxLayout(panel, BoxLayout.Y_AXIS));
+		panel.setLayout(new BorderLayout());
 		JPanel menu = new JPanel();
-		menu.setMaximumSize(new Dimension(800, 20));
+		//menu.setMaximumSize(new Dimension(800, 20));
 		OutputGraphics graphics = new OutputGraphics(initDatabase, initPlan, initPlans, initPreference, menu);
 		panel.add(graphics);
-		panel.add(menu);
+		panel.add(menu, BorderLayout.SOUTH);
 		return panel;
 	}
 	
@@ -285,18 +288,101 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 			}
 			repaint();
 		});
+
+		JButton update = new JButton("Remove plans with sections full capacity");
+		//update.setPreferredSize(new Dimension(310, 30));
+		update.addActionListener(e -> {
+			try {
+				removePlansWithFullSections();
+			} catch (Network.NetworkErrorException e1) {
+				JOptionPane.showMessageDialog(this, "Error: internet connection failed");
+			}
+		});
+
 		JButton save = new JButton("Save Schedules");
+		//save.setPreferredSize(new Dimension(160, 30));
 		save.addActionListener(actionEvent ->
 			new OutputStorage(database, plan, plans, preference).store(this));
+
+		JButton print = new JButton("Save as images");
+		//print.setPreferredSize(new Dimension(160, 30));
+		print.addActionListener(actionEvent -> saveScheduleImages());
 
 		//add elements to menu
 		planText = new JLabel();
 		scoreText = new JLabel();
+		menu.add(Box.createHorizontalGlue());
 		menu.add(left);
 		menu.add(planText);
 		menu.add(right);
 		menu.add(scoreText);
 		menu.add(Box.createHorizontalGlue());
+		menu.add(update);
 		menu.add(save);
+		menu.add(print);
+		menu.add(Box.createHorizontalGlue());
+	}
+
+	private void removePlansWithFullSections() throws Network.NetworkErrorException {
+		ArrayList<Plan> newPlans = new ArrayList<>();
+		HashMap<Section, Boolean> sectionsFull = new HashMap<>();
+		Section section;
+		for(int plan=0; plan<plans; plan++){
+			boolean planNotFull = true;
+			for(int course=0; course<this.plan[plan].COURSES; course++){
+				section = database[course].section[this.plan[plan].path[course]];
+				if (section instanceof ElectiveSection){
+					continue;
+				}
+				if(!sectionsFull.containsKey(section)){
+					sectionsFull.put(section, Network.sectionFull(section));
+				}
+				planNotFull = planNotFull && !sectionsFull.get(section);
+			}
+			if(planNotFull){
+				newPlans.add(this.plan[plan]);
+			}
+		}
+		plan = newPlans.toArray(new Plan[0]);
+		plans = plan.length;
+		currentPlan = 0;
+		repaint();
+	}
+
+	private void saveScheduleImages() {
+		JFileChooser fc = new JFileChooser();
+		fc.setDialogTitle("Select where to save schedules");
+		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+		//show dialog, return if file not chosen
+		if(fc.showOpenDialog(this) != JFileChooser.APPROVE_OPTION){
+			return;
+		}
+
+		File dir = new File(fc.getSelectedFile(), "Schedules");
+		dir.mkdir();
+
+		//save currentPlan before iterating through plans
+		int displayPlan = currentPlan;
+
+		//iterate through plans
+		File file;
+		int width = this.getWidth();
+		int height = this.getHeight();
+		BufferedImage image;
+		for(int i=0; i<plans; i++){
+			//create image of plan
+			currentPlan = i;
+			image = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+			this.paint(image.createGraphics());
+			//write image to file
+			file = new File(dir, "schedule" + i + ".jpg");
+			try {
+				ImageIO.write(image, "jpg", file);
+			} catch (IOException e) {
+				JOptionPane.showMessageDialog(this, "Error: failed to create file.");
+			}
+		}
+		//go back to previous currentPlan
+		currentPlan = displayPlan;
 	}
 }

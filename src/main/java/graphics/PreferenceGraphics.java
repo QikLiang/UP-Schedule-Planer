@@ -8,19 +8,10 @@ import java.awt.CardLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Hashtable;
 
-import javax.swing.Box;
-import javax.swing.BoxLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
-import javax.swing.JComboBox;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JSlider;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 class PreferenceGraphics extends JPanel{
 
@@ -75,15 +66,15 @@ class PreferenceGraphics extends JPanel{
 	 */
 	private void loadInstructors(Course database[], int courses) {
 		//add instructors
-		instructorList= new ArrayList<>();
+		HashSet<String> instructorSet = new HashSet<>();
 		for (int course = 0; course < courses; course++) {
 			for (int section = 0; section < database[course].sections; section++) {
-				String temp = database[course].section[section].instructor;
-				if(instructorList.indexOf(temp)==-1){
-					instructorList.add(temp);
-				}
+				instructorSet.add(database[course].section[section].instructor);
 			}
 		}
+		//"" comes from ElectiveSection
+		instructorSet.remove("");
+		instructorList= new ArrayList<>(instructorSet);
 	}
 
 	private JPanel menu(){
