@@ -87,7 +87,7 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 		int titleLines;
 		int nameLines;
 		for (int course=0; course<plan[currentPlan].COURSES; course++) {
-			section = database[course].section[plan[currentPlan].path[course]];
+			section = database[course].section.get(plan[currentPlan].path[course]);
 			//skip ElectiveSections, check sectionNumber instead of using instantof
 			//saving to file could have changed data type
 			if (section.sectionNumber == null){
@@ -98,8 +98,8 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 						database[course].subject, database[course].courseNumber,
 						section.sectionNumber), CHARTWIDTH+40, lines*30+30);
 			titleLines = drawLongString(g, database[course].title, lines, 195);
-			for (int i=0; i<preference.Instructors; i++) {
-				if(section.instructor.equals(preference.instructors[i])){
+			for (int i=0; i<preference.instructorList.size(); i++) {
+				if(section.instructor.equals(preference.instructorList.get(i))){
 					g.setColor(Color.green.darker());
 					break;
 				}
@@ -330,7 +330,7 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 		for(int plan=0; plan<plans; plan++){
 			boolean planNotFull = true;
 			for(int course=0; course<this.plan[plan].COURSES; course++){
-				section = database[course].section[this.plan[plan].path[course]];
+				section = database[course].section.get(this.plan[plan].path[course]);
 				if (section instanceof ElectiveSection){
 					continue;
 				}

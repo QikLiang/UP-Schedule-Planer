@@ -23,9 +23,7 @@ public class Preference
 		public Time noonEnd = new Time();
 		public int duration;
 		public int instructor;//how much user values having specific instructor
-		public String[] instructors = new String[Schedule_Planer.COURSES];//list of preferred instructors
-		public ArrayList<String> instructorList = new ArrayList<>(Schedule_Planer.COURSES);
-		public int Instructors=0;//number of instructors in the instructors array
+		public ArrayList<String> instructorList = new ArrayList<>();
 		public int clustering=0;
 		public int externalCommitments;
 		public ArrayList<Section> events = new ArrayList<>();//user's external commitments

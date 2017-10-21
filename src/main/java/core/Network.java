@@ -173,8 +173,7 @@ public class Network {
 			section.instructor = details.get(6).text().replaceAll("\\(.\\)", "").trim();
 
 			//add section into course
-			course.section[course.sections] = section;
-			course.sections++;
+			course.section.add(section);
 		}
 
 		return courses.values().toArray(new Course[0]);

@@ -26,8 +26,6 @@ import javax.swing.text.DefaultCaret;
  */
 public class Schedule_Planer {
 	//universal variables
-	public static final int SECTIONS = 25; //maximum number of sections per course
-	public static final int COURSES = 9; //maximum number of courses in database
 	public static final int PLANS = 100;//maximum number of different schedules the
 	//program can handle
 
@@ -57,18 +55,13 @@ public class Schedule_Planer {
 	 */
 	private Schedule_Planer(){
 		// declaration and instantiation
-		database = new Course[COURSES];
 		plan = new Plan[PLANS];
 		courses = 0;
 		plans = 0;
 		preference = new Preference();
 
-		for (int i = 0; i < COURSES; i++) {
-			database[i] = new Course();
-		}
-
 		//set up GUI
-		window = new JFrame("UP data.Schedule Planer");
+		window = new JFrame("UP Schedule Planer");
 		window.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		window.setSize(430, 450);
 		window.setLocationByPlatform(true);
@@ -95,7 +88,7 @@ public class Schedule_Planer {
 		window.setVisible(true);
 		//window.setResizable(false);
 
-		messageBox.append("data.Schedule planer ver 2.2.1 for University of Portland, by Qi Liang\n");
+		messageBox.append("Schedule planer ver 3.0 for University of Portland, by Qi Liang\n");
 
 		//create buttons for options
 		JPanel div = new JPanel();
@@ -139,7 +132,7 @@ public class Schedule_Planer {
 		Plan thisPlan;
 		int[] thisPlanPath = new int[courses];
 
-		while (thisPlanPath[0] < database[0].sections) {// && plans < PLANS){
+		while (thisPlanPath[0] < database[0].section.size()) {// && plans < PLANS){
 			thisPlan = new Plan(courses, thisPlanPath);
 			if (plans >= PLANS - 1) {
 				sortPlans(plan, plans);
@@ -155,8 +148,8 @@ public class Schedule_Planer {
 			// increment to next path
 			thisPlanPath[courses - 1]++;
 			for (int i = courses - 1; i > 0; i--) {
-				if (thisPlanPath[i] >= database[i].sections) {
-					thisPlanPath[i] = thisPlanPath[i] % database[i].sections;
+				if (thisPlanPath[i] >= database[i].section.size()) {
+					thisPlanPath[i] = thisPlanPath[i] % database[i].section.size();
 					thisPlanPath[i - 1]++;
 				}
 			}

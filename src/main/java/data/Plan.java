@@ -54,7 +54,7 @@ public class Plan
 		//check credits in preference range
 		credits = 0;
 		for(int i=0; i<database.length; i++){
-			if(! (database[i].section[path[i]] instanceof ElectiveSection)){
+			if(! (database[i].section.get(path[i]) instanceof ElectiveSection)){
 				credits += database[i].credit;
 			}
 		}
@@ -101,8 +101,8 @@ public class Plan
 		}
 
 		for (int course = 0; course < COURSES; course++){
-			for (int i = 0; i < preference.Instructors; i++){
-				if (database[course].section[path[course]].instructor.equals(preference.instructors[i])){
+			for (int i = 0; i < preference.instructorList.size(); i++){
+				if (database[course].section.get(path[course]).instructor.equals(preference.instructorList.get(i))){
 					score += preference.instructor;
 					instructor++;
 				}
@@ -182,9 +182,9 @@ public class Plan
 		//load times into schedule
 		for (int course = 0; course < COURSES; course++){//for every course
 			for (int day = 0; day < 5; day++){//for each day of the week
-				if (database[course].section[path[course]].schedule[day][0].hour != 25){ //if the course has class that day
-				    schedule[day][course].startTime = database[course].section[path[course]].schedule[day][0];//set start time
-					schedule[day][course].endTime = database[course].section[path[course]].schedule[day][1];//set end time
+				if (database[course].section.get(path[course]).schedule[day][0].hour != 25){ //if the course has class that day
+				    schedule[day][course].startTime = database[course].section.get(path[course]).schedule[day][0];//set start time
+					schedule[day][course].endTime = database[course].section.get(path[course]).schedule[day][1];//set end time
 					schedule[day][course].course = course;//what course it is
 					Courses[day]++;
 				}

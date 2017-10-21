@@ -3,6 +3,7 @@ package graphics;
 import core.Schedule_Planer;
 import data.Course;
 import data.Preference;
+import data.Section;
 
 import java.awt.CardLayout;
 import java.awt.Dimension;
@@ -53,7 +54,7 @@ class PreferenceGraphics extends JPanel{
 		preference = mainProgram.preference;
 		database = mainProgram.database;
 		courses = mainProgram.courses;
-		loadInstructors( database, courses );
+		loadInstructors( database);
 		setLayout( new CardLayout() );
 		add( menu() , "menu");
 		add( page1(), "page1" );
@@ -64,17 +65,18 @@ class PreferenceGraphics extends JPanel{
 	/**
 	 * extract a list of instructors from database and add them to instructorList
 	 */
-	private void loadInstructors(Course database[], int courses) {
+	private void loadInstructors(Course database[]) {
 		//add instructors
 		HashSet<String> instructorSet = new HashSet<>();
-		for (int course = 0; course < courses; course++) {
-			for (int section = 0; section < database[course].sections; section++) {
-				instructorSet.add(database[course].section[section].instructor);
+		for (Course course : database) {
+			for (Section section : course.section) {
+				instructorSet.add(section.instructor);
 			}
 		}
 		//"" comes from ElectiveSection
 		instructorSet.remove("");
 		instructorList= new ArrayList<>(instructorSet);
+		instructorList.sort(String::compareTo);
 	}
 
 	private JPanel menu(){
@@ -87,7 +89,7 @@ class PreferenceGraphics extends JPanel{
 		row1.add(new JLabel("Preferences"));
 		menu.add(row1);
 
-		JButton time = new JButton("data.Time Preferences");
+		JButton time = new JButton("Time Preferences");
 		time.addActionListener(event -> {
 			CardLayout layout = (CardLayout) getLayout();
 			layout.show(this, "page1");
@@ -455,8 +457,6 @@ class PreferenceGraphics extends JPanel{
 		for(int i=0; i<instructorList.size(); i++){
 			if(checkBox[i].isSelected()){
 				preference.instructorList.add(instructorList.get(i));
-				preference.instructors[preference.Instructors]=instructorList.get(i);
-				preference.Instructors++;
 			}
 		}
 

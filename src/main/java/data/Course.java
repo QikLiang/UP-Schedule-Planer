@@ -4,6 +4,7 @@ import core.Schedule_Planer;
 import data.Section;
 
 import java.io.Serializable;
+import java.util.ArrayList;
 
 /**
  * 
@@ -14,18 +15,10 @@ public class Course
 	public String courseNumber;
 	public int credit = 0;
 	public String title;
-	public Section[] section= new Section[Schedule_Planer.SECTIONS];
-	public int sections = 0; //amount of sections in this course
-
-	public Course(){
-		for (int i = 0; i<section.length; i++) {
-			section[i] = new Section();
-		}
-	}
+	public ArrayList<Section> section = new ArrayList<>();
 
 	public void addElectiveSection(){
-		section[sections] = new ElectiveSection();
-		sections++;
+		section.add(new ElectiveSection());
 	}
 
 	public String toString(){

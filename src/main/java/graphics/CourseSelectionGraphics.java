@@ -146,8 +146,11 @@ public class CourseSelectionGraphics extends JPanel{
 	private class CourseRow {
 		private JComboBox<String> subject, course;
 		JPanel panel;
+		CourseList parent;
 
-		CourseRow(String[] subjectList, HashMap<String, ArrayList<Course>> courseList) {
+		CourseRow(CourseList parent, String[] subjectList,
+		          HashMap<String, ArrayList<Course>> courseList) {
+			this.parent = parent;
 			subject = new JComboBox<>(subjectList);
 			subject.insertItemAt("", 0);
 			subject.setSelectedIndex(0);
@@ -176,6 +179,9 @@ public class CourseSelectionGraphics extends JPanel{
 		 */
 		JPanel toJPanel(){
 			panel = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+			JButton remove = new JButton("-");
+			remove.addActionListener(actionEvent -> parent.removeRow(this));
+			panel.add(remove);
 			panel.add(subject);
 			return panel;
 		}
@@ -190,11 +196,12 @@ public class CourseSelectionGraphics extends JPanel{
 	private class CourseList extends JPanel {
 		ArrayList<CourseRow> courses;
 		HashMap<String, Course> courseMap;
+		JPanel panel;
 		CourseList(String[] subjectList, HashMap<String, ArrayList<Course>> courseList,
 								HashMap<String, Course> courseMap){
 			this.courseMap = courseMap;
 			courses = new ArrayList<>();
-			JPanel panel = new JPanel();
+			panel = new JPanel();
 			panel.setLayout( new BoxLayout(panel, BoxLayout.Y_AXIS));
 			JScrollPane scrollBar = new JScrollPane(panel);
 			scrollBar.setPreferredSize( new Dimension(250, 150) );
@@ -203,11 +210,21 @@ public class CourseSelectionGraphics extends JPanel{
 			JButton add = new JButton("+");
 			this.add(add);
 			add.addActionListener(e->{
-				CourseRow row = new CourseRow(subjectList, courseList);
+				CourseRow row = new CourseRow(this, subjectList, courseList);
 				panel.add(row.toJPanel());
+				//scroll to bottom
+				panel.revalidate();
+				JScrollBar sb = scrollBar.getVerticalScrollBar();
+				sb.setValue(sb.getMaximum());
 				panel.revalidate();
 				courses.add(row);
 			});
+		}
+
+		private void removeRow(CourseRow row){
+			courses.remove(row);
+			panel.remove(row.panel);
+			panel.revalidate();
 		}
 
 		/**
