@@ -128,6 +128,8 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 		g.drawLine(CHARTWIDTH+340, 10, CHARTWIDTH+340, CHARTHEIGHT);
 	}//paint
 
+	/* PAINT HELPER METHODS */
+
 	/**
 	 * helper method that line-wraps a string to not exceed 16 characters per line
 	 * @param g graphics variable for calling drawString
@@ -180,7 +182,7 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 				g.fillRect(rectX, rectY, RECTWIDTH, rectHeight);
 				g.setColor(Color.black);
 				g.drawRect(rectX, rectY, RECTWIDTH, rectHeight);
-				
+
 				//info inside the box
 				if(course>=0){
 					//start time
@@ -243,14 +245,17 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 		}
 
 		repaint();
-		
+
 		if(Schedule_Planer.testing){
 			System.out.printf("plan: %d,%s\n", currentPlan, plan[currentPlan].toString());
 		}
 
 		return true;
 	}//dispatchKeyEvent
-	
+
+	/**
+	 * makes a new OutputGraphics object and wraps it in another JPanel along with a menu at the bottom
+	 */
 	public static JPanel createGraphicsJPanel(Course[] initDatabase, Plan[] initPlan, int initPlans, Preference initPreference){
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
@@ -261,7 +266,10 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 		panel.add(menu, BorderLayout.SOUTH);
 		return panel;
 	}
-	
+
+	/**
+	 * constructor only called by createGraphicsJPanel
+	 */
 	private OutputGraphics (Course[] initDatabase, Plan[] initPlan, int initPlans, Preference initPreference, JPanel menu){
 		database = initDatabase;
 		plan = initPlan;
