@@ -3,6 +3,7 @@ apply plugin: 'java'
 apply plugin: 'application'
 mainClassName = 'core.Schedule_Planer'
 
+
 buildscript {
     repositories {
         mavenCentral()

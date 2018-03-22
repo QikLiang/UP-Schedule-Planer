@@ -20,7 +20,6 @@ class PreferenceGraphics extends JPanel{
 	private Schedule_Planer mainProgram;
 	private Preference preference;
 	private Course database[];
-	private int courses;
 
 	//gui variables
 	//times in day
@@ -53,7 +52,6 @@ class PreferenceGraphics extends JPanel{
 		this.mainProgram = mainProgram;
 		preference = mainProgram.preference;
 		database = mainProgram.database;
-		courses = mainProgram.courses;
 		loadInstructors( database);
 		setLayout( new CardLayout() );
 		add( menu() , "menu");
@@ -85,18 +83,18 @@ class PreferenceGraphics extends JPanel{
 
 		menu.add(Box.createVerticalGlue());
 
-		JPanel row1 = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-		row1.add(new JLabel("Preferences"));
-		menu.add(row1);
+		JPanel row = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		row.add(new JLabel("Preferences"));
+		menu.add(row);
 
 		JButton time = new JButton("Time Preferences");
 		time.addActionListener(event -> {
 			CardLayout layout = (CardLayout) getLayout();
 			layout.show(this, "page1");
 		});
-		JPanel row2 = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-		row2.add(time);
-		menu.add(row2);
+		row = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		row.add(time);
+		menu.add(row);
 		menu.add(Box.createVerticalGlue());
 
 		JButton instructors = new JButton("Instructor Preferences");
@@ -104,9 +102,9 @@ class PreferenceGraphics extends JPanel{
 			CardLayout layout = (CardLayout) getLayout();
 			layout.show(this, "page2");
 		});
-		JPanel row3 = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-		row3.add(instructors);
-		menu.add(row3);
+		row = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		row.add(instructors);
+		menu.add(row);
 		menu.add(Box.createVerticalGlue());
 
 		JButton events = new JButton("External Commitments");
@@ -114,9 +112,9 @@ class PreferenceGraphics extends JPanel{
 			CardLayout layout = (CardLayout) getLayout();
 			layout.show(this, "page3");
 		});
-		JPanel row4 = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-		row4.add(events);
-		menu.add(row4);
+		row = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		row.add(events);
+		menu.add(row);
 		menu.add(Box.createVerticalGlue());
 
 		//finish
@@ -127,11 +125,22 @@ class PreferenceGraphics extends JPanel{
 				mainProgram.startOutputGraphics();
 			}
 		} );
-		JPanel row5 = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
-		row5.add(finish);
-		menu.add(row5);
+		row = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		row.add(finish);
+		menu.add(row);
 		menu.add(Box.createVerticalGlue());
 
+		//back
+		JButton back = new JButton("Back");
+		back.addActionListener( event -> {
+			if(this.loadPreference()){
+				mainProgram.startSelectionGraphic();
+			}
+		} );
+		row = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 0));
+		row.add(back);
+		menu.add(row);
+		menu.add(Box.createVerticalGlue());
 		return menu;
 	}
 

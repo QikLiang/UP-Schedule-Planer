@@ -310,7 +310,7 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 		JButton save = new JButton("Save Schedules");
 		//save.setPreferredSize(new Dimension(160, 30));
 		save.addActionListener(actionEvent ->
-			new OutputStorage(database, plan, plans, preference).store(this));
+				new OutputStorage(database, plan, plans, preference).store(this));
 
 		JButton print = new JButton("Save as images");
 		//print.setPreferredSize(new Dimension(160, 30));

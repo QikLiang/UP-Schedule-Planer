@@ -10,6 +10,7 @@ import org.jsoup.select.Elements;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -76,7 +77,7 @@ public class Network {
 	 * @param subjects list of option values for subjects
 	 * @return list of Courses, sections with TBA time skipped
 	 */
-	public static Course[] getCourses(String termVal, String[] subjects) throws NetworkErrorException {
+	public static Course[] getCourses(String termVal, Set<String> subjects) throws NetworkErrorException {
 		lastUsedTermVal = termVal;
 
 		Connection conn = Jsoup.connect(COURSES_URL);

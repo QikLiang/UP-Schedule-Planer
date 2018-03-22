@@ -44,6 +44,7 @@ public class CourseSelectionGraphics extends JPanel{
 			subjectTexts[i] = subjects[i][0];
 		}
 		subjectsList = new CheckboxList(subjectTexts);
+		subjectsList.setSelected(main.subjectSelection);
 		this.add(subjectsList);
 
 		//button to next page (select courses)
@@ -67,16 +68,16 @@ public class CourseSelectionGraphics extends JPanel{
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.add(Box.createVerticalGlue());
 		//get courses
-		boolean[] selected = subjectsList.getSelected();
-		ArrayList<String> subjectVals = new ArrayList<>();
-		for(int i=0; i<selected.length; i++){
-			if(selected[i]){
+		main.subjectSelection = subjectsList.getSelected();
+		Set<String> subjectVals = new HashSet<>();
+		for(int i=0; i<main.subjectSelection.length; i++){
+			if(main.subjectSelection[i]){
 				subjectVals.add(subjects[i][1]);
 			}
 		}
 		String termValue = termVal.get(term.getSelectedItem());
 		Course[] courses = Network.getCourses(termValue,
-				subjectVals.toArray(new String[0]));
+				subjectVals);
 
 		HashMap<String, ArrayList<Course>> coursesBySubjects = new HashMap<>();
 		HashMap<String, Course> courseMap = new HashMap<>();
@@ -94,8 +95,8 @@ public class CourseSelectionGraphics extends JPanel{
 		//display courses
 		this.removeAll();
 		String[] subjects = coursesBySubjects.keySet().toArray(new String[0]);
-		CourseList core = new CourseList(subjects, coursesBySubjects, courseMap);
-		CourseList electives = new CourseList(subjects, coursesBySubjects, courseMap);
+		CourseList core = new CourseList(subjects, coursesBySubjects, courseMap, main.courSelection);
+		CourseList electives = new CourseList(subjects, coursesBySubjects, courseMap, main.electiveSelection);
 		JPanel div1 = new JPanel(new FlowLayout(FlowLayout.LEFT, 0, 0));
 		div1.add(new JLabel("Courses you have to take:"));
 		this.add(div1);
@@ -125,6 +126,8 @@ public class CourseSelectionGraphics extends JPanel{
 		next.addActionListener(e -> {
 			main.preference.minCred = Integer.parseInt(credMin.getText());
 			main.preference.maxCred = Integer.parseInt(credMax.getText());
+			main.courSelection = core.getCourses();
+			main.electiveSelection = electives.getCourses();
 			HashSet<Course> allCourses = new HashSet<>();
 			allCourses.addAll(electives.getCourses());
 			allCourses.forEach(Course::addElectiveSection);
@@ -186,6 +189,13 @@ public class CourseSelectionGraphics extends JPanel{
 			return panel;
 		}
 
+		JPanel toJPanel(Course preset){
+			toJPanel();
+			subject.setSelectedItem(preset.subject);
+			course.setSelectedItem(preset.courseNumber);
+			return panel;
+		}
+
 		private String getSubject(){ return (String) subject.getSelectedItem(); }
 		private String getCourse(){ return (String) course.getSelectedItem(); }
 	}
@@ -198,7 +208,7 @@ public class CourseSelectionGraphics extends JPanel{
 		HashMap<String, Course> courseMap;
 		JPanel panel;
 		CourseList(String[] subjectList, HashMap<String, ArrayList<Course>> courseList,
-								HashMap<String, Course> courseMap){
+								HashMap<String, Course> courseMap, Set<Course> preset){
 			this.courseMap = courseMap;
 			courses = new ArrayList<>();
 			panel = new JPanel();
@@ -219,6 +229,23 @@ public class CourseSelectionGraphics extends JPanel{
 				panel.revalidate();
 				courses.add(row);
 			});
+
+			if(preset != null){
+				for(Course course : preset){
+					try {
+						CourseRow row = new CourseRow(this, subjectList, courseList);
+						panel.add(row.toJPanel(course));
+						courses.add(row);
+					} catch (NullPointerException e){
+						//subject no longer in list, move on
+					}
+				}
+				//scroll to bottom
+				panel.revalidate();
+				JScrollBar sb = scrollBar.getVerticalScrollBar();
+				sb.setValue(sb.getMaximum());
+				panel.revalidate();
+			}
 		}
 
 		private void removeRow(CourseRow row){

@@ -8,6 +8,7 @@ import graphics.OutputGraphics;
 import graphics.OutputStorage;
 
 import java.awt.*;
+import java.util.Set;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -33,6 +34,9 @@ public class Schedule_Planer {
 
 	//instance variables
 	public Course[] database;
+	public boolean[] subjectSelection;
+	public Set<Course> courSelection;
+	public Set<Course> electiveSelection;
 	public int courses;
 	public Preference preference;
 	private Plan[] plan;
@@ -104,13 +108,7 @@ public class Schedule_Planer {
 		);
 		JButton start = new JButton("Start");
 		start.addActionListener(event -> {
-			try {
-				contentpane.add(new CourseSelectionGraphics(this), "select courses");
-				contentPaneLayout.show( contentpane,"select courses");
-			} catch (Network.NetworkErrorException e) {
-				JOptionPane.showMessageDialog( null,
-						"Error: Internet access not available. Please try again later");
-			}
+			startSelectionGraphic();
 		});
 		
 		//add buttons to bottom of window
@@ -120,6 +118,16 @@ public class Schedule_Planer {
 		div.add(start);
 		messagePane.add(div);
 		messagePane.revalidate();
+	}
+
+	public void startSelectionGraphic(){
+		try {
+			contentpane.add(new CourseSelectionGraphics(this), "select courses");
+			contentPaneLayout.show( contentpane,"select courses");
+		} catch (Network.NetworkErrorException e) {
+			JOptionPane.showMessageDialog( null,
+					"Error: Internet access not available. Please try again later");
+		}
 	}
 	
 	/**

@@ -2,11 +2,16 @@ package graphics;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Set;
 
 class CheckboxList extends JPanel {
 	private JCheckBox[] checkBox;
+	private String[] text;
 
 	CheckboxList(String[] text){
+		this.text = text;
 		JPanel list = new JPanel();
 		list.setLayout( new BoxLayout(list, BoxLayout.Y_AXIS));
 		checkBox = new JCheckBox[text.length];
@@ -20,9 +25,21 @@ class CheckboxList extends JPanel {
 		this.add(scrollBar);
 	}
 
+	public void setSelected(boolean[] selected){
+		if(selected == null){
+			return;
+		}
+
+		for(int i=0; i<checkBox.length; i++){
+			if(selected[i]){
+				checkBox[i].setSelected(true);
+			}
+		}
+	}
+
 	boolean[] getSelected(){
 		boolean[] selected = new boolean[checkBox.length];
-		for(int i=0; i<selected.length; i++){
+		for(int i=0; i<checkBox.length; i++){
 			selected[i] = checkBox[i].isSelected();
 		}
 		return selected;
