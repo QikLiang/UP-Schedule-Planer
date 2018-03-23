@@ -261,7 +261,7 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 		panel.setLayout(new BorderLayout());
 		JPanel menu = new JPanel();
 		//menu.setMaximumSize(new Dimension(800, 20));
-		OutputGraphics graphics = new OutputGraphics(initDatabase, initPlan, initPlans, initPreference, menu);
+		OutputGraphics graphics = new OutputGraphics(initDatabase, initPlan, initPlans, initPreference, menu, panel);
 		panel.add(graphics);
 		panel.add(menu, BorderLayout.SOUTH);
 		return panel;
@@ -270,7 +270,8 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 	/**
 	 * constructor only called by createGraphicsJPanel
 	 */
-	private OutputGraphics (Course[] initDatabase, Plan[] initPlan, int initPlans, Preference initPreference, JPanel menu){
+	private OutputGraphics (Course[] initDatabase, Plan[] initPlan, int initPlans, Preference initPreference,
+	                        JPanel menu, JPanel parent){
 		database = initDatabase;
 		plan = initPlan;
 		plans = initPlans;
@@ -297,6 +298,13 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 			repaint();
 		});
 
+		JButton back = new JButton("Back");
+		back.addActionListener(actionEvent -> {
+					((CardLayout) parent.getParent().getLayout()).show(parent.getParent(), "preference");
+					SwingUtilities.getWindowAncestor(parent).setSize(430, 450);
+				}
+		);
+
 		JButton update = new JButton("Remove plans with sections full capacity");
 		//update.setPreferredSize(new Dimension(310, 30));
 		update.addActionListener(e -> {
@@ -308,12 +316,10 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 		});
 
 		JButton save = new JButton("Save Schedules");
-		//save.setPreferredSize(new Dimension(160, 30));
 		save.addActionListener(actionEvent ->
 				new OutputStorage(database, plan, plans, preference).store(this));
 
 		JButton print = new JButton("Save as images");
-		//print.setPreferredSize(new Dimension(160, 30));
 		print.addActionListener(actionEvent -> saveScheduleImages());
 
 		//add elements to menu
@@ -325,6 +331,7 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 		menu.add(right);
 		menu.add(scoreText);
 		menu.add(Box.createHorizontalGlue());
+		menu.add(back);
 		menu.add(update);
 		menu.add(save);
 		menu.add(print);
