@@ -1,15 +1,18 @@
 package graphics;
 
 import com.google.gson.Gson;
+import core.Schedule_Planer;
 import data.Course;
 import data.Plan;
 import data.Preference;
+import data.Schedule;
 
 import javax.swing.*;
 import java.awt.*;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Scanner;
+import java.util.Set;
 
 /**
  * Stores all data used by graphics.OutputGraphics into a file
@@ -18,20 +21,22 @@ import java.util.Scanner;
  * to covert between JSON and Java objects.
  */
 public class OutputStorage {
-	private Course[] database;
-	private Plan[] plan;
-	private int plans;
-	private Preference preference;
+	public Course[] database;
+	public Plan[] plan;
+	public int plans;
+	public Preference preference;
+	public boolean[] subjectSelection;
+	public Set<Course> courSelection;
+	public Set<Course> electiveSelection;
 
-	public OutputStorage(Course[] database, Plan[] plan, int plans, Preference preference){
-		this.database = database;
-		this.plan = plan;
-		this.plans = plans;
-		this.preference = preference;
-	}
-
-	public JPanel toGraphics(){
-		return OutputGraphics.createGraphicsJPanel(database, plan, plans, preference);
+	public OutputStorage(Schedule_Planer main){
+		this.database = main.database;
+		this.plan = main.plan;
+		this.plans = main.plans;
+		this.preference = main.preference;
+		this.subjectSelection = main.subjectSelection;
+		this.courSelection = main.courSelection;
+		this.electiveSelection = main.electiveSelection;
 	}
 
 	/**
@@ -57,11 +62,12 @@ public class OutputStorage {
 	}
 
 	/**
-	 * use file chooser to read an graphics.OutputStorage object from file
+	 * Use file chooser to read an graphics.OutputStorage object from file.
+	 * Modifies Schedule_Planer object passed in to contain the information stored.
 	 * @param anchor anchor for file chooser
 	 * @return object, or null if error
 	 */
-	public static OutputStorage getFromFile(Component anchor){
+	public static OutputStorage getFromFile(Component anchor, Schedule_Planer main){
 		JFileChooser fc = new JFileChooser();
 		int val = fc.showOpenDialog(anchor);
 		if (val == JFileChooser.APPROVE_OPTION){

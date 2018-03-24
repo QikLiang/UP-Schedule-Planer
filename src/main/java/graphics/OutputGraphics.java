@@ -20,6 +20,7 @@ import javax.swing.*;
  */
 public class OutputGraphics extends Panel implements KeyEventDispatcher
 {
+	private final Schedule_Planer main;
 	private final Course[] database;
 	private final Preference preference;
 	private Plan[] plan;
@@ -256,12 +257,12 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 	/**
 	 * makes a new OutputGraphics object and wraps it in another JPanel along with a menu at the bottom
 	 */
-	public static JPanel createGraphicsJPanel(Course[] initDatabase, Plan[] initPlan, int initPlans, Preference initPreference){
+	public static JPanel createGraphicsJPanel(Schedule_Planer main){
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
 		JPanel menu = new JPanel();
 		//menu.setMaximumSize(new Dimension(800, 20));
-		OutputGraphics graphics = new OutputGraphics(initDatabase, initPlan, initPlans, initPreference, menu, panel);
+		OutputGraphics graphics = new OutputGraphics(main, menu, panel);
 		panel.add(graphics);
 		panel.add(menu, BorderLayout.SOUTH);
 		return panel;
@@ -270,12 +271,12 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 	/**
 	 * constructor only called by createGraphicsJPanel
 	 */
-	private OutputGraphics (Course[] initDatabase, Plan[] initPlan, int initPlans, Preference initPreference,
-	                        JPanel menu, JPanel parent){
-		database = initDatabase;
-		plan = initPlan;
-		plans = initPlans;
-		preference = initPreference;
+	private OutputGraphics (Schedule_Planer main, JPanel menu, JPanel parent){
+		this.main = main;
+		database = main.database;
+		plan = main.plan;
+		plans = main.plans;
+		preference = main.preference;
 
 		//Ask Java to tell me about what keys the user presses on the keyboard.
 		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(this);
@@ -317,7 +318,7 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 
 		JButton save = new JButton("Save Schedules");
 		save.addActionListener(actionEvent ->
-				new OutputStorage(database, plan, plans, preference).store(this));
+				new OutputStorage(main).store(this));
 
 		JButton print = new JButton("Save as images");
 		print.addActionListener(actionEvent -> saveScheduleImages());

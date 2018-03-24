@@ -14,7 +14,7 @@ import java.util.Hashtable;
 
 import javax.swing.*;
 
-class PreferenceGraphics extends JPanel{
+public class PreferenceGraphics extends JPanel{
 
 	//program wide variables
 	private Schedule_Planer mainProgram;
@@ -48,7 +48,7 @@ class PreferenceGraphics extends JPanel{
 	private ArrayList<EventGraphics> events;
 	private JSlider externalCommitments;
 
-	PreferenceGraphics(Schedule_Planer mainProgram){
+	public PreferenceGraphics(Schedule_Planer mainProgram){
 		this.mainProgram = mainProgram;
 		preference = mainProgram.preference;
 		database = mainProgram.database;

@@ -6,6 +6,7 @@ import data.Preference;
 import graphics.CourseSelectionGraphics;
 import graphics.OutputGraphics;
 import graphics.OutputStorage;
+import graphics.PreferenceGraphics;
 
 import java.awt.*;
 import java.util.Set;
@@ -34,13 +35,14 @@ public class Schedule_Planer {
 
 	//instance variables
 	public Course[] database;
+	public String term;
 	public boolean[] subjectSelection;
 	public Set<Course> courSelection;
 	public Set<Course> electiveSelection;
 	public int courses;
 	public Preference preference;
-	private Plan[] plan;
-	private int plans;
+	public Plan[] plan;
+	public int plans;
 
 	//gui variables
 	private JFrame window;
@@ -98,12 +100,13 @@ public class Schedule_Planer {
 		JPanel div = new JPanel();
 		JButton open = new JButton("Open Saved Schedule");
 		open.addActionListener(e -> {
-					OutputStorage os = OutputStorage.getFromFile(window);
+					OutputStorage os = OutputStorage.getFromFile(window, this);
 					if (os == null){
 						JOptionPane.showMessageDialog(window, "Error: can't read file");
 						return;
 					}
-					startOutputGraphics(os.toGraphics());
+					update(os);
+					startOutputGraphics(OutputGraphics.createGraphicsJPanel(this));
 				}
 		);
 		JButton start = new JButton("Start");
@@ -118,6 +121,23 @@ public class Schedule_Planer {
 		div.add(start);
 		messagePane.add(div);
 		messagePane.revalidate();
+	}
+
+	/**
+	 * Given information stored in a OutputStorage, update this object's data
+	 * and initialize necessary graphics
+	 * @param os
+	 */
+	private void update(OutputStorage os){
+		subjectSelection = os.subjectSelection;
+		courSelection = os.courSelection;
+		electiveSelection = os.electiveSelection;
+		database = os.database;
+		plan = os.plan;
+		plans = os.plans;
+		preference = os.preference;
+		startSelectionGraphic();
+		contentpane.add(new PreferenceGraphics(this), "preference");
 	}
 
 	public void startSelectionGraphic(){
@@ -188,7 +208,7 @@ public class Schedule_Planer {
 	 * create and display output graphics using database and preference info
 	 */
 	public void startOutputGraphics() {
-		startOutputGraphics(OutputGraphics.createGraphicsJPanel(database, plan, plans, preference));
+		startOutputGraphics(OutputGraphics.createGraphicsJPanel(this));
 	}
 
 	private void startOutputGraphics(JPanel output){

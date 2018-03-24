@@ -6,14 +6,11 @@ import java.util.ArrayList;
 
 /**
  * Write a description of class data.Preference here.
- *
- * @author (your name)
- * @version (a version number or a date)
  */
 public class Preference
 {
-		public int minCred;
-		public int maxCred;
+		public int minCred = 15;
+		public int maxCred = 18;
 		public int start;
 		public Time startTime = new Time();
 		public int end;

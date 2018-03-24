@@ -34,7 +34,11 @@ public class CourseSelectionGraphics extends JPanel{
 			termText[i] = terms[i][0];
 		}
 		term = new JComboBox<>(termText);
-		term.setSelectedIndex(1);
+		if(main.term != null){
+			term.setSelectedItem(main.term);
+		} else {
+			term.setSelectedIndex(1);
+		}
 		this.add(term);
 
 		//get list of subjects and put it in gui list
@@ -52,6 +56,7 @@ public class CourseSelectionGraphics extends JPanel{
 		next.addActionListener(e -> {
 			try {
 				selectCourses();
+				main.term = (String)term.getSelectedItem();
 			} catch (Network.NetworkErrorException e1) {
 				JOptionPane.showMessageDialog( null,
 					"Error: Internet access not available. Please try again later");
@@ -109,10 +114,10 @@ public class CourseSelectionGraphics extends JPanel{
 		//num credits specification
 		JTextField credMin = new JTextField();
 		credMin.setColumns(2);
-		credMin.setText("15");
+		credMin.setText(main.preference.minCred+"");
 		JTextField credMax = new JTextField();
 		credMax.setColumns(2);
-		credMax.setText("18");
+		credMax.setText(main.preference.maxCred+"");
 
 		JPanel credRow = new JPanel(new FlowLayout(FlowLayout.CENTER, 0,0));
 		credRow.add(new JLabel("Credits: between "));
