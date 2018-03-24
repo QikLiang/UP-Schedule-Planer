@@ -4,6 +4,8 @@ import data.Section;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public class NetworkTest {
@@ -13,7 +15,7 @@ public class NetworkTest {
 
 		Assert.assertTrue(terms != null && terms.length > 0);
 
-		Pattern term = Pattern.compile("(Fall|Summer|Spring) \\d{4} \\(View only\\)");
+		Pattern term = Pattern.compile("(Fall|Summer|Spring) \\d{4}( \\(View only\\))?");
 		Pattern value = Pattern.compile("\\d{6}");
 
 		Assert.assertEquals(terms[0][0], "None");
@@ -48,9 +50,9 @@ public class NetworkTest {
 		//the first item is "None", so select the select item from terms
 		String termVal = Network.getTerms()[1][1];
 		String[][] subjects = Network.getSubjects(termVal);
-		String[] subVals = new String[4];
-		for (int i = 0; i < 4; i++) {
-			subVals[i] = subjects[i][1];
+		Set<String> subVals = new HashSet<>();
+		for (int i=0; i<4; i++) {
+			subVals.add(subjects[i][1]);
 		}
 
 		Course[] courses = Network.getCourses(termVal, subVals);
@@ -62,7 +64,6 @@ public class NetworkTest {
 			Assert.assertNotNull("data.Course number empty", course.courseNumber);
 			Assert.assertNotNull("data.Course title empty", course.title);
 
-			Assert.assertTrue("sections empty", !course.section.isEmpty());
 			for(Section section : course.section){
 				Assert.assertNotNull("seciton empty", section);
 				Assert.assertNotNull("seciton number empty", section.sectionNumber);

@@ -94,7 +94,7 @@ public class Schedule_Planer {
 		window.setVisible(true);
 		//window.setResizable(false);
 
-		messageBox.append("Schedule planer ver 3.0 for University of Portland, by Qi Liang\n");
+		messageBox.append("Schedule planer ver 3.1 for University of Portland, by Qi Liang\n");
 
 		//create buttons for options
 		JPanel div = new JPanel();
