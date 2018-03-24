@@ -257,6 +257,7 @@ public class CourseSelectionGraphics extends JPanel{
 			courses.remove(row);
 			panel.remove(row.panel);
 			panel.revalidate();
+			panel.repaint();
 		}
 
 		/**
