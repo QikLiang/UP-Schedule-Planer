@@ -146,11 +146,6 @@ public class Network {
 			match.find();
 			details = discriptions.get(i).select(COURSE_DETAILS);
 
-			//ignore section if time undetermined
-			if(details.get(1).text().equals("TBA")){
-				continue;
-			}
-
 			//create course if it doesn't already exist
 			courseStr = match.group(3);
 			course = courses.get(courseStr);
@@ -169,6 +164,20 @@ public class Network {
 			section = new Section();
 			section.crn = Integer.parseInt(match.group(2));
 			section.sectionNumber = match.group(6);
+
+			//courses with no meeting time
+			if(details.size() == 0){
+				section.instructor = "";
+				course.section.add(section);
+				continue;
+			}
+
+			//ignore section if time undetermined
+			if(details.get(1).text().equals("TBA")){
+				continue;
+			}
+
+			//input section time & instructor
 			section.setSchedule(details.get(2).text(),details.get(1).text());
 			section.location = details.get(3).text();
 			section.instructor = details.get(6).text().replaceAll("\\(.\\)", "").trim();
