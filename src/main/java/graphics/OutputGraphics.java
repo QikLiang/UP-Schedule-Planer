@@ -400,5 +400,12 @@ public class OutputGraphics extends Panel implements KeyEventDispatcher
 		}
 		//go back to previous currentPlan
 		currentPlan = displayPlan;
+
+		//open folder in desktop
+		try {
+			Desktop.getDesktop().open(dir);
+		} catch (IOException e) {
+			//don't care
+		}
 	}
 }
