@@ -25,7 +25,7 @@ public class Network {
 			"https://selfserve-db.up.edu/prd/bwckschd.p_get_crse_unsec";
 
 	//CSS selectors for extracting data from response webpages
-	private static final String TERMS_DROPDOWN = "#term_input_id option";
+	private static final String TERMS_DROPDOWN = "option";
 	private static final String SUBJECTS_DROPDOWN = "#subj_id option";
 	private static final String COURSE_TITLES = "table.datadisplaytable th.ddtitle a";
 	private static final String COURSE_DESCRIPTION =
@@ -134,8 +134,8 @@ public class Network {
 		Course course;
 		String courseStr;
 		//captures string "(Name) - (crn) - ((subject) (course)) - (section)"
-		Pattern title = Pattern.compile("(.+?) - (\\d+) - (([A-Z]+) ([\\dA-Z]+)) - ([A-Z]+)");
-		Pattern credit = Pattern.compile("(\\d+)(\\.\\d+)? Credits");
+		Pattern title = Pattern.compile("(.+?) - (\\d+) - (([A-Z]+) ([\\dA-Z]+)) - ([A-Za-z]+)");
+		Pattern credit = Pattern.compile("(\\d+)(\\.\\d+)? (Credits|Continuing Education Units)");
 		Matcher match;
 		Matcher match2;
 		Elements details;
