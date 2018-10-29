@@ -51,7 +51,7 @@ public class NetworkTest {
 		String termVal = Network.getTerms()[1][1];
 		String[][] subjects = Network.getSubjects(termVal);
 		Set<String> subVals = new HashSet<>();
-		for (int i=0; i<4; i++) {
+		for (int i=0; i<subjects.length; i++) {
 			subVals.add(subjects[i][1]);
 		}
 
