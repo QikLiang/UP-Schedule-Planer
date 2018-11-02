@@ -18,6 +18,7 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+import javax.swing.SwingUtilities;
 import javax.swing.text.DefaultCaret;
 
 /**
@@ -94,7 +95,9 @@ public class Schedule_Planer {
 		window.setVisible(true);
 		//window.setResizable(false);
 
-		messageBox.append("Schedule planer ver 3.1 for University of Portland, by Qi Liang\n");
+		messageBox.append("Schedule planer ver 3.1 for University of Portland, by Qi Liang.\n");
+		messageBox.append("Visit https://github.com/QikLiang/UP-Schedule-Planer/releases\n" +
+				"for the latest version of this application.\n");
 
 		//create buttons for options
 		JPanel div = new JPanel();
@@ -111,6 +114,7 @@ public class Schedule_Planer {
 		);
 		JButton start = new JButton("Start");
 		start.addActionListener(event -> {
+			messageBox.append("Start loading courses.\n");
 			startSelectionGraphic();
 		});
 		
@@ -141,13 +145,21 @@ public class Schedule_Planer {
 	}
 
 	public void startSelectionGraphic(){
-		try {
-			contentpane.add(new CourseSelectionGraphics(this), "select courses");
-			contentPaneLayout.show( contentpane,"select courses");
-		} catch (Network.NetworkErrorException e) {
-			JOptionPane.showMessageDialog( null,
-					"Error: Internet access not available. Please try again later");
-		}
+		// since CourseSelectionGraphics makes a network call, move it out of GUI thread
+		new Thread(()->{
+			try {
+				CourseSelectionGraphics csg = new CourseSelectionGraphics(this);
+				SwingUtilities.invokeLater(()->{
+					contentpane.add(csg, "select courses");
+					contentPaneLayout.show( contentpane,"select courses");
+				});
+			} catch (Network.NetworkErrorException e) {
+				SwingUtilities.invokeLater(()->{
+					JOptionPane.showMessageDialog( null,
+							"Error: Internet access not available. Please try again later");
+				});
+			}
+		}).start();
 	}
 	
 	/**
