@@ -165,15 +165,10 @@ public class Network {
 			section.crn = Integer.parseInt(match.group(2));
 			section.sectionNumber = match.group(6);
 
-			//courses with no meeting time
-			if(details.size() == 0){
+			//sections with no meeting time or undetermined
+			if(details.size() == 0 || details.get(1).text().equals("TBA")){
 				section.instructor = "";
 				course.section.add(section);
-				continue;
-			}
-
-			//ignore section if time undetermined
-			if(details.get(1).text().equals("TBA")){
 				continue;
 			}
 
