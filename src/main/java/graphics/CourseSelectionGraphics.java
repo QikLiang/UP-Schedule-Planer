@@ -43,12 +43,12 @@ public class CourseSelectionGraphics extends JPanel{
 
 		//get list of subjects and put it in gui list
 		subjects = Network.getSubjects(terms[1][1]);
-		String[] subjectTexts = new String[subjects.length];
-		for(int i=0; i<subjectTexts.length; i++){
-			subjectTexts[i] = subjects[i][0];
+		ArrayList<String> subjectTexts = new ArrayList<>(subjects.length);
+		for(String[] subject : subjects){
+			subjectTexts.add(subject[0]);
 		}
 		subjectsList = new CheckboxList(subjectTexts);
-		subjectsList.setSelected(main.subjectSelection);
+		subjectsList.setSelected(main.selectedSubjects);
 		this.add(subjectsList);
 
 		//button to next page (select courses)
@@ -73,11 +73,11 @@ public class CourseSelectionGraphics extends JPanel{
 		this.setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 		this.add(Box.createVerticalGlue());
 		//get courses
-		main.subjectSelection = subjectsList.getSelected();
-		Set<String> subjectVals = new HashSet<>();
-		for(int i=0; i<main.subjectSelection.length; i++){
-			if(main.subjectSelection[i]){
-				subjectVals.add(subjects[i][1]);
+		main.selectedSubjects = subjectsList.getSelected();
+		Set<String> subjectVals = new HashSet<>(main.selectedSubjects.size());
+		for(String[] subject : subjects){
+			if(main.selectedSubjects.contains(subject[0])){
+				subjectVals.add(subject[1]);
 			}
 		}
 		String termValue = termVal.get(term.getSelectedItem());

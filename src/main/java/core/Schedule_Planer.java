@@ -37,7 +37,7 @@ public class Schedule_Planer {
 	//instance variables
 	public Course[] database;
 	public String term;
-	public boolean[] subjectSelection;
+	public Set<String> selectedSubjects;
 	public Set<Course> courSelection;
 	public Set<Course> electiveSelection;
 	public int courses;
@@ -133,7 +133,7 @@ public class Schedule_Planer {
 	 * @param os
 	 */
 	private void update(OutputStorage os){
-		subjectSelection = os.subjectSelection;
+		selectedSubjects = os.selectedSubjects;
 		courSelection = os.courSelection;
 		electiveSelection = os.electiveSelection;
 		database = os.database;

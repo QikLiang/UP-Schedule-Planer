@@ -5,7 +5,6 @@ import core.Schedule_Planer;
 import data.Course;
 import data.Plan;
 import data.Preference;
-import data.Schedule;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,7 +24,7 @@ public class OutputStorage {
 	public Plan[] plan;
 	public int plans;
 	public Preference preference;
-	public boolean[] subjectSelection;
+	public Set<String> selectedSubjects;
 	public Set<Course> courSelection;
 	public Set<Course> electiveSelection;
 
@@ -34,7 +33,7 @@ public class OutputStorage {
 		this.plan = main.plan;
 		this.plans = main.plans;
 		this.preference = main.preference;
-		this.subjectSelection = main.subjectSelection;
+		this.selectedSubjects = main.selectedSubjects;
 		this.courSelection = main.courSelection;
 		this.electiveSelection = main.electiveSelection;
 	}

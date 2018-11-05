@@ -42,7 +42,7 @@ public class PreferenceGraphics extends JPanel{
 	private JSlider cluster;
 	//instructors
 	private JSlider instructor;
-	private JCheckBox checkBox[];
+	CheckboxList instructorsSelected;
 	private ArrayList<String> instructorList;
 	//external commitment events
 	private ArrayList<EventGraphics> events;
@@ -324,18 +324,8 @@ public class PreferenceGraphics extends JPanel{
 		div2.add(instructor);
 		page2.add( div2 );
 
-		JPanel list = new JPanel();
-		list.setLayout( new BoxLayout(list, BoxLayout.Y_AXIS));
-		checkBox= new JCheckBox[instructorList.size()];
-		for( int i=0; i<instructorList.size(); i++ ){
-			JCheckBox cb = new JCheckBox(instructorList.get(i));
-			checkBox[i]=cb;
-			list.add(cb);
-		}
-
-		JScrollPane scrollBar = new JScrollPane(list);
-		scrollBar.setPreferredSize( new Dimension(400, 300) );
-		page2.add(scrollBar);
+		instructorsSelected = new CheckboxList(instructorList);
+		page2.add(instructorsSelected);
 
 		//done
 		JButton done = new JButton("Done");
@@ -463,11 +453,7 @@ public class PreferenceGraphics extends JPanel{
 
 		//instructors
 		preference.instructor = instructor.getValue();
-		for(int i=0; i<instructorList.size(); i++){
-			if(checkBox[i].isSelected()){
-				preference.instructorList.add(instructorList.get(i));
-			}
-		}
+		preference.instructorList.addAll(instructorsSelected.getSelected());
 
 		//clustering
 		preference.clustering = cluster.getValue();
