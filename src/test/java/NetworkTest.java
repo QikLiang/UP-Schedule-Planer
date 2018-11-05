@@ -61,6 +61,8 @@ public class NetworkTest {
 
 		for (Course course : courses) {
 			Assert.assertNotNull("data.Course subject empty", course.subject);
+			Assert.assertTrue("data.Course subject length zero for "+course.subject+course.courseNumber,
+					course.section.size() > 0);
 			Assert.assertNotNull("data.Course number empty", course.courseNumber);
 			Assert.assertNotNull("data.Course title empty", course.title);
 
