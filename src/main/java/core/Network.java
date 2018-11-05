@@ -134,7 +134,7 @@ public class Network {
 		Course course;
 		String courseStr;
 		//captures string "(Name) - (crn) - ((subject) (course)) - (section)"
-		Pattern title = Pattern.compile("(.+?) - (\\d+) - (([A-Z]+) ([\\dA-Z]+)) - ([A-Za-z]+)");
+		Pattern title = Pattern.compile("(.+?) - (\\d+) - (([A-Z]+) ([\\dA-Z]+)) - (\\w+)");
 		Pattern credit = Pattern.compile("(\\d+)(\\.\\d+)? (Credits|Continuing Education Units)");
 		Matcher match;
 		Matcher match2;
