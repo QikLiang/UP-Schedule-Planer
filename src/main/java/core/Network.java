@@ -5,10 +5,12 @@ import data.Section;
 import org.jsoup.Connection;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -30,7 +32,8 @@ public class Network {
 	private static final String COURSE_TITLES = "table.datadisplaytable th.ddtitle a";
 	private static final String COURSE_DESCRIPTION =
 			"table.datadisplaytable:has(th.ddtitle) > tbody > tr > td.dddefault";
-	private static final String COURSE_DETAILS = "table td.dddefault";
+	private static final String COURSE_DETAIL_ROWS = "table tr";
+	private static final String COURSE_DETAILS = "td.dddefault";
 	private static final String SECTION_CAPACITY = "table.datadisplaytable table.datadisplaytable td.dddefault";
 
 
@@ -144,7 +147,6 @@ public class Network {
 		for (int i = 0; i < numSections; i++) {
 			match = title.matcher(titles.get(i));
 			match.find();
-			details = discriptions.get(i).select(COURSE_DETAILS);
 
 			//create course if it doesn't already exist
 			courseStr = match.group(3);
@@ -165,17 +167,20 @@ public class Network {
 			section.crn = Integer.parseInt(match.group(2));
 			section.sectionNumber = match.group(6);
 
-			//sections with no meeting time or undetermined
-			if(details.size() == 0 || details.get(1).text().equals("TBA")){
-				section.instructor = "";
-				course.section.add(section);
-				continue;
-			}
-
 			//input section time & instructor
-			section.setSchedule(details.get(2).text(),details.get(1).text());
-			section.location = details.get(3).text();
-			section.instructor = details.get(6).text().replaceAll("\\(.\\)", "").trim();
+			Set<String> instructors = new LinkedHashSet<>();
+			Set<String> locations = new LinkedHashSet<>();
+			for(Element detailsRow : discriptions.get(i).select(COURSE_DETAIL_ROWS)){
+				details = detailsRow.select(COURSE_DETAILS);
+				if(details.size() < 7){ // table header row
+					continue;
+				}
+				section.setSchedule(details.get(2).text(),details.get(1).text());
+				instructors.add(details.get(6).text().replaceAll("\\(.\\)", "").trim());
+				locations.add(details.get(3).text());
+			}
+			section.location = String.join(", ", locations);
+			section.instructor = String.join(", ", instructors);
 
 			//add section into course
 			course.section.add(section);

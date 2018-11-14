@@ -1,5 +1,7 @@
 package data;
 
+import java.util.regex.Pattern;
+
 /**
  * store time as an object
  */
@@ -29,6 +31,11 @@ public class Time
 	 * @param endTime the variable that will hold the ending time
 	 */
 	public static void parseTime(String string, Time startTime, Time endTime){
+		// check for format "1:35 pm - 2:30 pm"
+		if(!string.matches("(\\d{1,2}:\\d{2}\\s*[ap]m(\\s-\\s)*){2}")){
+			return;
+		}
+
 		String[] times = string.split("-");//split into beginning and end time
 		times[0] = times[0].trim();
 		times[1] = times[1].trim();

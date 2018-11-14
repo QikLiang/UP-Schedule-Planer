@@ -26,6 +26,11 @@ public class Section
 	}
 
 	public void setSchedule(String classdays, String time){
+		if(classdays == null || !classdays.matches("[MTWRF]+") ||
+			time == null ){
+			return;
+		}
+
 		// inputing the times based on day of the week
 		Time startTime = new Time();
 		Time endTime = new Time();

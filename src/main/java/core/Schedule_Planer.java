@@ -95,7 +95,7 @@ public class Schedule_Planer {
 		window.setVisible(true);
 		//window.setResizable(false);
 
-		messageBox.append("Schedule planer ver 3.2 for University of Portland, by Qi Liang.\n");
+		messageBox.append("Schedule planer ver 3.2.1 for University of Portland, by Qi Liang.\n");
 		messageBox.append("Visit https://github.com/QikLiang/UP-Schedule-Planer/releases\n" +
 				"for the latest version of this application.\n");
 
